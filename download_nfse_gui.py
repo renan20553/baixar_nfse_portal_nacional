@@ -15,6 +15,7 @@ import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 
 CONFIG_FILE = "config.json"
+DEFAULT_TIMEOUT = 30
 
 @contextmanager
 def pfx_to_pem(pfx_path, pfx_password):
@@ -128,7 +129,7 @@ class App:
                     url = f"{BASE_URL}/{nsu:020d}?cnpj={CNPJ}"
                     self.write(f"Consultando NSU {nsu} para CNPJ {CNPJ}...", log=True)
                     try:
-                        resp = sess.get(url)
+                        resp = sess.get(url, timeout=cfg.get("timeout", DEFAULT_TIMEOUT))
                     except Exception as e:
                         self.write(f"Erro de conexão: {e}", log=True)
                         salvar_ultimo_nsu(CNPJ, nsu)
