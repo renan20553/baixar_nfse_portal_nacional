@@ -5,6 +5,8 @@ import base64
 import gzip
 import time
 import datetime
+import logging
+import sys
 from pathlib import Path
 from contextlib import contextmanager
 from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
@@ -59,7 +61,7 @@ class App:
         self.text.pack(fill=tk.BOTH, expand=True)
         self.status_label = tk.Label(root, text="Pronto", anchor='w')
         self.status_label.pack(fill=tk.X)
-        self.log_file = None
+        self.logger = logging.getLogger(__name__)
         self.running = False
         self.thread = None
 
@@ -82,9 +84,8 @@ class App:
         self.text.insert(tk.END, msg_fmt)
         self.text.see(tk.END)
         self.status_label.config(text=msg)
-        if log and self.log_file:
-            self.log_file.write(msg_fmt)
-            self.log_file.flush()
+        if log:
+            self.logger.info(msg)
 
     def start(self):
         if self.running:
@@ -186,7 +187,8 @@ class App:
             os.makedirs(LOG_DIR, exist_ok=True)
             BASE_URL = "https://adn.nfse.gov.br/contribuintes/DFe"
             log_name = os.path.join(LOG_DIR, f"log_nfse_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt")
-            self.log_file = open(log_name, "w", encoding="utf-8")
+            logging.basicConfig(filename=log_name, level=logging.INFO,
+                                format="%(asctime)s %(levelname)s: %(message)s")
             self.write(f"Log registrado em: {log_name}", log=False)
             self.write(f"Consultando NFS-e para CNPJ {CNPJ}.", log=True)
 
@@ -205,6 +207,7 @@ class App:
                     try:
                         resp = sess.get(url, timeout=self.config.get("timeout", 30))
                     except Exception as e:
+                        self.logger.error("Erro de conexão: %s", e)
                         self.write(f"Erro de conexão: {e}", log=True)
                         salvar_ultimo_nsu(CNPJ, nsu)
                         break
@@ -233,6 +236,7 @@ class App:
                             salvar_ultimo_nsu(CNPJ, nsu_maior + 1)
                             nsu = nsu_maior + 1
                         else:
+                            self.logger.error("Resposta inesperada ou nenhum documento localizado.")
                             self.write("Resposta inesperada ou nenhum documento localizado.", log=True)
                             salvar_ultimo_nsu(CNPJ, nsu)
                             break
@@ -246,6 +250,7 @@ class App:
                         salvar_ultimo_nsu(CNPJ, nsu)
                         break
                     else:
+                        self.logger.error("Erro: %s %s", resp.status_code, resp.text)
                         self.write(f"Erro: {resp.status_code} {resp.text}", log=True)
                         salvar_ultimo_nsu(CNPJ, nsu)
                         break
@@ -253,28 +258,44 @@ class App:
             self.write(f"Processo concluído. Total baixados: {total_baixados}", log=True)
             self.status_label.config(text="Processo concluído")
         except Exception as e:
+            self.logger.error("Erro inesperado: %s", e)
             self.write(f"Erro inesperado: {e}", log=True)
         finally:
-            if self.log_file:
-                self.log_file.close()
             self.running = False
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
             if self.config.get("auto_start"):
                 self.root.after(1000, self.root.destroy)
 
+REQUIRED_FIELDS = ["cert_path", "cert_pass", "cnpj", "output_dir", "log_dir"]
+
 def ler_config():
     if not os.path.exists(CONFIG_FILE):
-        raise Exception(f"Arquivo {CONFIG_FILE} não encontrado.")
+        raise FileNotFoundError(f"Arquivo de configuração '{CONFIG_FILE}' não encontrado.")
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+        cfg = json.load(f)
+
+    missing = [k for k in REQUIRED_FIELDS if not cfg.get(k)]
+    if missing:
+        raise ValueError("Campos obrigatórios ausentes no config.json: " + ", ".join(missing))
+
+    cfg.setdefault("delay_seconds", 60)
+    cfg.setdefault("timeout", 30)
+    cfg.setdefault("auto_start", False)
+    return cfg
 
 def salvar_config(cfg):
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=2, ensure_ascii=False)
 
 if __name__ == "__main__":
-    cfg = ler_config()
+    try:
+        cfg = ler_config()
+    except Exception as e:
+        tk.Tk().withdraw()
+        messagebox.showerror("Erro de configuração", str(e))
+        sys.exit(1)
+
     root = tk.Tk()
     app = App(root, cfg)
     root.mainloop()
