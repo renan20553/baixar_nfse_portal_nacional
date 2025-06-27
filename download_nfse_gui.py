@@ -54,23 +54,35 @@ def salvar_ultimo_nsu(cnpj, nsu):
         f.write(str(nsu))
 
 def extrair_ano_mes(xml_bytes: bytes) -> tuple[str, str]:
+    """Return the year and month from the XML's emission date.
+
+    The function searches for typical tags that contain the emission
+    timestamp, such as ``dhEmi`` or ``DataEmissao``.  If found, the
+    date is parsed using :func:`datetime.datetime.fromisoformat`
+    (which handles ISO-8601 strings with timezone) or falling back to
+    common ``YYYY-MM-DD`` or ``DD/MM/YYYY`` formats.
+    """
+
     now = datetime.datetime.now()
     try:
         root = ET.fromstring(xml_bytes)
-        el = root.find('.//{*}DataEmissao')
+        el = None
+        for tag in ("dhEmi", "DataEmissao"):
+            el = root.find(f'.//{{*}}{tag}')
+            if el is not None and el.text:
+                break
         if el is not None and el.text:
             txt = el.text.strip()
-            for fmt in ('%Y-%m-%d', '%d/%m/%Y'):
-                try:
-                    dt = datetime.datetime.strptime(txt[:10], fmt)
-                    return str(dt.year), f"{dt.month:02d}"
-                except Exception:
-                    continue
             try:
-                dt = datetime.datetime.fromisoformat(txt.replace('Z', ''))
+                dt = datetime.datetime.fromisoformat(txt.replace("Z", ""))
                 return str(dt.year), f"{dt.month:02d}"
             except Exception:
-                pass
+                for fmt in ("%Y-%m-%d", "%d/%m/%Y"):
+                    try:
+                        dt = datetime.datetime.strptime(txt[:10], fmt)
+                        return str(dt.year), f"{dt.month:02d}"
+                    except Exception:
+                        continue
     except Exception:
         pass
     return str(now.year), f"{now.month:02d}"
