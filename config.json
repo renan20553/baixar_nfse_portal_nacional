@@ -3,7 +3,7 @@
   "cert_pass": "your_password",
   "cnpj": "00000000000000",
   "output_dir": "./xml",
-  "delay_seconds": 60,
-  "auto_start": false,
-  "timeout": 30
+  "log_dir": "logs",
+  "delay_seconds": 10,
+  "auto_start": false
 }
