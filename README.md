@@ -37,6 +37,7 @@ Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
 - `cnpj`: CNPJ utilizado para login no portal.
 - `output_dir`: diretório onde os XML baixados serão salvos.
 - `log_dir`: diretório onde os arquivos de log serão criados.
+- `file_prefix`: texto prefixo para os nomes dos arquivos XML.
 - `delay_seconds`: intervalo em segundos entre as consultas ao portal.
 - `auto_start`: `true` para iniciar o download automaticamente ao abrir o programa.
 - `timeout`: tempo limite das requisições em segundos (padrão `30`).
@@ -50,6 +51,7 @@ Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
   "cnpj": "12345678000199",
   "output_dir": "./xml",
   "log_dir": "./logs",
+  "file_prefix": "NFS-e",
   "delay_seconds": 2,
   "auto_start": false,
   "timeout": 30
@@ -71,6 +73,8 @@ python download_nfse_gui.py
 ```
 
 O programa lê o `config.json`, faz login com o certificado e salva as notas no diretório configurado.
+Os XMLs são nomeados seguindo o padrão `<prefixo>_AAAA-MM_<chave>.xml` definido
+pela chave `file_prefix`.
 
 ## Gerar executável com PyInstaller
 
@@ -90,8 +94,8 @@ já utilizando a opção `--noconsole`.
 Além disso, o repositório possui um workflow do **GitHub Actions** que realiza
 a compilação em um ambiente Windows. Ao enviar alterações para a branch
 `main`, todo o conteúdo da pasta `dist` é disponibilizado como artefato na aba
-*Actions*. O executável gerado recebe um sufixo com o número da execução,
-como `download_nfse_gui_42.exe`.
+*Actions*. O executável gerado recebe um sufixo no formato `0.<run>` e é
+publicado automaticamente em uma release, como `download_nfse_gui_0.42.exe`.
 
 ## Testes
 

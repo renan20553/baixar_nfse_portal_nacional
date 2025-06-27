@@ -26,7 +26,7 @@ jobs:
 
       - name: Generate version
         shell: bash
-        run: echo "APP_VERSION=${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+        run: echo "APP_VERSION=0.${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
       - name: Build executable
         shell: bash
@@ -41,3 +41,11 @@ jobs:
         with:
           name: download_nfse_gui_${{ env.APP_VERSION }}
           path: dist/
+
+      - name: Create Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.APP_VERSION }}
+          name: v${{ env.APP_VERSION }}
+          files: dist/download_nfse_gui_${{ env.APP_VERSION }}.exe

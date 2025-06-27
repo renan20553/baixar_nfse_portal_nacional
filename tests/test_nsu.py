@@ -33,7 +33,7 @@ sys.modules[
     "cryptography.hazmat.primitives.serialization.pkcs12"
 ] = pkcs12
 
-from download_nfse_gui import ler_ultimo_nsu, salvar_ultimo_nsu
+from download_nfse_gui import ler_ultimo_nsu, salvar_ultimo_nsu, extrair_ano_mes
 
 
 def test_salvar_e_ler_nsu(tmp_path: Path) -> None:
@@ -55,3 +55,10 @@ def test_ler_nsu_padrao(tmp_path: Path) -> None:
         assert ler_ultimo_nsu("99999999999999") == 1
     finally:
         os.chdir(cwd)
+
+
+def test_extrair_ano_mes() -> None:
+    xml = "<root><DataEmissao>2024-05-10T10:00:00</DataEmissao></root>"
+    ano, mes = extrair_ano_mes(xml.encode())
+    assert ano == "2024"
+    assert mes == "05"
