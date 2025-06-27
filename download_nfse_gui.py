@@ -196,64 +196,64 @@ class App:
             total_baixados = 0
 
             with pfx_to_pem(CERT_PATH, CERT_PASS) as pem_cert:
-                sess = requests.Session()
-                sess.cert = pem_cert
-                sess.verify = True
+                with requests.Session() as sess:
+                    sess.cert = pem_cert
+                    sess.verify = True
 
-                nsu = ler_ultimo_nsu(CNPJ)
-                while self.running:
-                    url = f"{BASE_URL}/{nsu:020d}?cnpj={CNPJ}"
-                    self.write(f"Consultando NSU {nsu} para CNPJ {CNPJ}...", log=True)
-                    try:
-                        resp = sess.get(url, timeout=self.config.get("timeout", 30))
-                    except Exception as e:
-                        self.logger.error("Erro de conexão: %s", e)
-                        self.write(f"Erro de conexão: {e}", log=True)
-                        salvar_ultimo_nsu(CNPJ, nsu)
-                        break
-                    if resp.status_code == 200:
-                        resposta = resp.json()
-                        documentos = resposta.get("LoteDFe", [])
-                        if resposta.get("StatusProcessamento") == "DOCUMENTOS_LOCALIZADOS" and documentos:
-                            documentos = sorted(documentos, key=lambda d: int(d.get("NSU", 0)))
-                            nsu_maior = nsu
-                            for nfse in documentos:
-                                nsu_item = int(nfse["NSU"])
-                                chave = nfse["ChaveAcesso"]
-                                if nsu_item in nsus_baixados:
-                                    continue
-                                nsus_baixados.add(nsu_item)
-                                arquivo_xml = nfse["ArquivoXml"]
-                                xml_gzip = base64.b64decode(arquivo_xml)
-                                xml_bytes = gzip.decompress(xml_gzip)
-                                filename = os.path.join(OUTPUT_DIR, f"NFS-e_NSU_{nsu_item}_{chave}.xml")
-                                if not os.path.exists(filename):
-                                    with open(filename, "wb") as fxml:
-                                        fxml.write(xml_bytes)
-                                    self.write(f"Baixado e salvo: {filename}", log=True)
-                                    total_baixados += 1
-                                nsu_maior = max(nsu_maior, nsu_item)
-                            salvar_ultimo_nsu(CNPJ, nsu_maior + 1)
-                            nsu = nsu_maior + 1
-                        else:
-                            self.logger.error("Resposta inesperada ou nenhum documento localizado.")
-                            self.write("Resposta inesperada ou nenhum documento localizado.", log=True)
+                    nsu = ler_ultimo_nsu(CNPJ)
+                    while self.running:
+                        url = f"{BASE_URL}/{nsu:020d}?cnpj={CNPJ}"
+                        self.write(f"Consultando NSU {nsu} para CNPJ {CNPJ}...", log=True)
+                        try:
+                            resp = sess.get(url, timeout=self.config.get("timeout", 30))
+                        except Exception as e:
+                            self.logger.error("Erro de conexão: %s", e)
+                            self.write(f"Erro de conexão: {e}", log=True)
                             salvar_ultimo_nsu(CNPJ, nsu)
                             break
-                        self.write(f"Aguardando {DELAY_SECONDS} segundos para o próximo lote...", log=True)
-                        for i in range(DELAY_SECONDS):
-                            if not self.running:
+                        if resp.status_code == 200:
+                            resposta = resp.json()
+                            documentos = resposta.get("LoteDFe", [])
+                            if resposta.get("StatusProcessamento") == "DOCUMENTOS_LOCALIZADOS" and documentos:
+                                documentos = sorted(documentos, key=lambda d: int(d.get("NSU", 0)))
+                                nsu_maior = nsu
+                                for nfse in documentos:
+                                    nsu_item = int(nfse["NSU"])
+                                    chave = nfse["ChaveAcesso"]
+                                    if nsu_item in nsus_baixados:
+                                        continue
+                                    nsus_baixados.add(nsu_item)
+                                    arquivo_xml = nfse["ArquivoXml"]
+                                    xml_gzip = base64.b64decode(arquivo_xml)
+                                    xml_bytes = gzip.decompress(xml_gzip)
+                                    filename = os.path.join(OUTPUT_DIR, f"NFS-e_NSU_{nsu_item}_{chave}.xml")
+                                    if not os.path.exists(filename):
+                                        with open(filename, "wb") as fxml:
+                                            fxml.write(xml_bytes)
+                                        self.write(f"Baixado e salvo: {filename}", log=True)
+                                        total_baixados += 1
+                                    nsu_maior = max(nsu_maior, nsu_item)
+                                salvar_ultimo_nsu(CNPJ, nsu_maior + 1)
+                                nsu = nsu_maior + 1
+                            else:
+                                self.logger.error("Resposta inesperada ou nenhum documento localizado.")
+                                self.write("Resposta inesperada ou nenhum documento localizado.", log=True)
+                                salvar_ultimo_nsu(CNPJ, nsu)
                                 break
-                            time.sleep(1)
-                    elif resp.status_code == 204:
-                        self.write("Nenhuma nota encontrada. Fim da consulta.", log=True)
-                        salvar_ultimo_nsu(CNPJ, nsu)
-                        break
-                    else:
-                        self.logger.error("Erro: %s %s", resp.status_code, resp.text)
-                        self.write(f"Erro: {resp.status_code} {resp.text}", log=True)
-                        salvar_ultimo_nsu(CNPJ, nsu)
-                        break
+                            self.write(f"Aguardando {DELAY_SECONDS} segundos para o próximo lote...", log=True)
+                            for i in range(DELAY_SECONDS):
+                                if not self.running:
+                                    break
+                                time.sleep(1)
+                        elif resp.status_code == 204:
+                            self.write("Nenhuma nota encontrada. Fim da consulta.", log=True)
+                            salvar_ultimo_nsu(CNPJ, nsu)
+                            break
+                        else:
+                            self.logger.error("Erro: %s %s", resp.status_code, resp.text)
+                            self.write(f"Erro: {resp.status_code} {resp.text}", log=True)
+                            salvar_ultimo_nsu(CNPJ, nsu)
+                            break
 
             self.write(f"Processo concluído. Total baixados: {total_baixados}", log=True)
             self.status_label.config(text="Processo concluído")
