@@ -7,6 +7,7 @@ import time
 import datetime
 import logging
 import sys
+import re
 from pathlib import Path
 from contextlib import contextmanager
 from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
@@ -188,7 +189,7 @@ class App:
 
         add_entry(0, "cert_path", "Certificado", browse="file")
         add_entry(1, "cert_pass", "Senha")
-        add_entry(2, "cnpj", "CNPJ")
+        add_entry(2, "cnpj", "CNPJ Tomador")
         add_entry(3, "output_dir", "Diretório XML", browse="dir")
         add_entry(4, "log_dir", "Diretório Log", browse="dir")
         add_entry(5, "file_prefix", "Prefixo Arquivo")
@@ -324,6 +325,19 @@ def ler_config():
     missing = [k for k in REQUIRED_FIELDS if not cfg.get(k)]
     if missing:
         raise ValueError("Campos obrigatórios ausentes no config.json: " + ", ".join(missing))
+
+    # Validate that the base CNPJ of the certificate matches the CNPJ to consult
+    data = Path(cfg["cert_path"]).read_bytes()
+    _, cert, _ = load_key_and_certificates(data, cfg["cert_pass"].encode(), None)
+    if cert:
+        subj = cert.subject.rfc4514_string()
+        m = re.search(r"\d{14}", subj)
+        if m:
+            cert_cnpj = m.group(0)
+            if cert_cnpj[:8] != str(cfg["cnpj"])[0:8]:
+                raise ValueError(
+                    f"O CNPJ base do certificado ({cert_cnpj[:8]}) difere do CNPJ a consultar ({str(cfg['cnpj'])[:8]})."
+                )
 
     cfg.setdefault("delay_seconds", 60)
     cfg.setdefault("timeout", 30)

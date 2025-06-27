@@ -34,7 +34,7 @@ Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
 
 - `cert_path`: caminho para o certificado `.pfx` ou `.pem`.
 - `cert_pass`: senha do certificado.
-- `cnpj`: CNPJ utilizado para login no portal.
+- `cnpj`: CNPJ tomador (matriz ou filial) utilizado na consulta.
 - `output_dir`: diretório onde os XML baixados serão salvos.
 - `log_dir`: diretório onde os arquivos de log serão criados.
 - `file_prefix`: texto prefixo para os nomes dos arquivos XML.
