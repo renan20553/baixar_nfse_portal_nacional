@@ -80,13 +80,5 @@ Para criar um executável standalone:
 pip install pyinstaller
 pyinstaller --onefile download_nfse_gui.py
 ```
+
 O executável será gerado dentro da pasta `dist`.
-Copie o `config.json` e o arquivo de certificado (`.pfx` ou `.pem`) para esse
-diretório para que o programa consiga localizá-los em tempo de execução.
-
-Um script auxiliar `build_exe.sh` está disponível para automatizar essas etapas.
-
-Além disso, o repositório possui um workflow do **GitHub Actions** que realiza
-a compilação em um ambiente Windows. Ao enviar alterações para a branch
-`main`, um executável `download_nfse_gui.exe` é disponibilizado como artefato
-na aba *Actions* do repositório.
