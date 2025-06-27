@@ -34,7 +34,7 @@ jobs:
       - name: Build executable
         shell: bash
         run: |
-          pyinstaller --onefile --noconsole download_nfse_gui.py
+          pyinstaller --onefile --noconsole --noupx download_nfse_gui.py
           cp config.json dist/
           mv dist/download_nfse_gui.exe dist/download_nfse_gui_${APP_VERSION}.exe
           ls -R dist
