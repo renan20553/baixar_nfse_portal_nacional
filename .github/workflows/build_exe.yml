@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -49,3 +52,4 @@ jobs:
           tag_name: v${{ env.APP_VERSION }}
           name: v${{ env.APP_VERSION }}
           files: dist/download_nfse_gui_${{ env.APP_VERSION }}.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
