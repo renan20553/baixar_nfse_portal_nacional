@@ -12,6 +12,7 @@ from cryptography.hazmat.primitives.serialization.pkcs12 import load_key_and_cer
 import tempfile
 import threading
 import tkinter as tk
+from tkinter import filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
 
 CONFIG_FILE = "config.json"
@@ -67,6 +68,11 @@ class App:
         self.stop_button = tk.Button(root, text="Parar", command=self.stop, state=tk.DISABLED)
         self.stop_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+        self.settings_button = tk.Button(root, text="Configurações", command=self.open_settings)
+        self.settings_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+        self.settings_win = None  # referencia para a janela de configuração
+
         if self.config.get("auto_start", False):
             self.root.after(500, self.start)  # pequeno delay para interface carregar antes de iniciar
 
@@ -98,6 +104,73 @@ class App:
         self.write("Parando processo... aguarde.", log=True)
         self.start_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
+
+    def open_settings(self):
+        if self.settings_win and self.settings_win.winfo_exists():
+            self.settings_win.lift()
+            self.settings_win.focus_force()
+            return
+
+        win = tk.Toplevel(self.root)
+        self.settings_win = win
+        win.title("Configurações")
+
+        def on_close():
+            self.settings_win = None
+            win.destroy()
+
+        win.protocol("WM_DELETE_WINDOW", on_close)
+
+        vars_ = {}
+
+        def add_entry(row, key, label, browse=None):
+            tk.Label(win, text=label).grid(row=row, column=0, sticky="w", padx=5, pady=2)
+            var = tk.StringVar(value=str(self.config.get(key, "")))
+            entry = tk.Entry(win, textvariable=var, width=50)
+            entry.grid(row=row, column=1, padx=5, pady=2)
+            vars_[key] = var
+            if browse == "file":
+                def choose():
+                    path = filedialog.askopenfilename(parent=win)
+                    if path:
+                        var.set(path)
+                tk.Button(win, text="...", command=choose).grid(row=row, column=2, padx=2, pady=2)
+            elif browse == "dir":
+                def choose():
+                    path = filedialog.askdirectory(parent=win)
+                    if path:
+                        var.set(path)
+                tk.Button(win, text="...", command=choose).grid(row=row, column=2, padx=2, pady=2)
+
+        add_entry(0, "cert_path", "Certificado", browse="file")
+        add_entry(1, "cert_pass", "Senha")
+        add_entry(2, "cnpj", "CNPJ")
+        add_entry(3, "output_dir", "Diretório XML", browse="dir")
+        add_entry(4, "log_dir", "Diretório Log", browse="dir")
+        add_entry(5, "delay_seconds", "Delay (s)")
+        add_entry(6, "timeout", "Timeout (s)")
+
+        auto_start_var = tk.BooleanVar(value=bool(self.config.get("auto_start", False)))
+        tk.Checkbutton(win, text="Auto iniciar", variable=auto_start_var).grid(row=7, column=1, sticky="w", padx=5, pady=2)
+
+        def save():
+            new_cfg = self.config.copy()
+            for k, v in vars_.items():
+                if k in ("delay_seconds", "timeout"):
+                    try:
+                        new_cfg[k] = int(v.get())
+                    except ValueError:
+                        messagebox.showerror("Erro", f"Valor inválido para {k}")
+                        return
+                else:
+                    new_cfg[k] = v.get()
+            new_cfg["auto_start"] = auto_start_var.get()
+            self.config = new_cfg
+            salvar_config(new_cfg)
+            messagebox.showinfo("Configurações", "Configurações salvas com sucesso!")
+            on_close()
+
+        tk.Button(win, text="Salvar", command=save).grid(row=8, column=0, columnspan=3, pady=5)
 
     def download_nfse(self):
         try:
@@ -192,6 +265,10 @@ def ler_config():
         raise Exception(f"Arquivo {CONFIG_FILE} não encontrado.")
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
+
+def salvar_config(cfg):
+    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, indent=2, ensure_ascii=False)
 
 if __name__ == "__main__":
     cfg = ler_config()
