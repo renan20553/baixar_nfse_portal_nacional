@@ -96,6 +96,7 @@ a compilação em um ambiente Windows. Ao enviar alterações para a branch
 `main`, todo o conteúdo da pasta `dist` é disponibilizado como artefato na aba
 *Actions*. O executável gerado recebe um sufixo no formato `0.<run>` e é
 publicado automaticamente em uma release, como `download_nfse_gui_0.42.exe`.
+O número dessa versão também aparece no título da janela do aplicativo.
 
 ## Testes
 
