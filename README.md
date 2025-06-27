@@ -1,15 +1,14 @@
-# NFSe Portal Nacional Downloader
+# Downloader de NFS-e do Portal Nacional
 
-This project provides a simple script to download NFSe invoices from the Portal Nacional in an automated way.
+Este projeto fornece um script simples para baixar Notas Fiscais de Serviço eletrônicas (NFS-e) do Portal Nacional de forma automatizada.
 
-## Requirements
+## Requisitos
 
-This project requires **Python 3.10** or newer.
+Este projeto requer **Python 3.10** ou superior.
 
-## Setup
+## Configuração do ambiente (Linux/macOS)
 
-Create a virtual environment (optional but recommended) and install the
-dependencies from `requirements.txt`:
+Crie um ambiente virtual (opcional, mas recomendado) e instale as dependências:
 
 ```bash
 python3 -m venv .venv
@@ -17,27 +16,37 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` file lists the required packages such as `requests` and `cryptography`.
+O arquivo `requirements.txt` lista pacotes necessários como `requests` e `cryptography`.
 
-## Configuration
+## Configuração do ambiente no Windows
 
-Create a `config.json` file in the project root with the following keys:
+Abra o Prompt de Comando ou o PowerShell e execute:
 
-- `cert_path`: Path to the `.pfx` or `.pem` certificate file.
-- `cert_pass`: Password for the certificate.
-- `cnpj`: The company's CNPJ used to log in to the portal.
-- `output_dir`: Directory where downloaded NFSe XML files will be saved.
-- `log_dir`: Directory where log files will be written.
-- `delay_seconds`: Number of seconds to wait between requests.
-- `auto_start`: `true` to start downloading automatically when the script launches.
-- `timeout` *(opcional)*: tempo limite das requisições em segundos (padrão `30`).
+```cmd
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-Example `config.json`:
+## Arquivo `config.json`
+
+Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
+
+- `cert_path`: caminho para o certificado `.pfx` ou `.pem`.
+- `cert_pass`: senha do certificado.
+- `cnpj`: CNPJ utilizado para login no portal.
+- `output_dir`: diretório onde os XML baixados serão salvos.
+- `log_dir`: diretório onde os arquivos de log serão criados.
+- `delay_seconds`: intervalo em segundos entre as consultas ao portal.
+- `auto_start`: `true` para iniciar o download automaticamente ao abrir o programa.
+- `timeout`: tempo limite das requisições em segundos (padrão `30`).
+
+### Exemplo
 
 ```json
 {
-  "cert_path": "path/to/certificate.pfx",
-  "cert_pass": "my_password",
+  "cert_path": "caminho/para/certificado.pfx",
+  "cert_pass": "minha_senha",
   "cnpj": "12345678000199",
   "output_dir": "./xml",
   "log_dir": "./logs",
@@ -47,12 +56,29 @@ Example `config.json`:
 }
 ```
 
-## Running
+## Execução
 
-The provided `download_nfse_gui.py` script reads this configuration. Run it with:
+Linux/macOS:
 
 ```bash
 python3 download_nfse_gui.py
 ```
 
-The script will read `config.json`, log in using the provided certificate, and download the NFSe files to the specified output directory.
+Windows:
+
+```cmd
+python download_nfse_gui.py
+```
+
+O programa lê o `config.json`, faz login com o certificado e salva as notas no diretório configurado.
+
+## Gerar executável com PyInstaller
+
+Para criar um executável standalone:
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile download_nfse_gui.py
+```
+
+O executável será gerado dentro da pasta `dist`.
