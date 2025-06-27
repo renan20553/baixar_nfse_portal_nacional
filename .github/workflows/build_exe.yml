@@ -31,6 +31,10 @@ jobs:
         shell: bash
         run: echo "APP_VERSION=0.${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
+      - name: Write version file
+        shell: bash
+        run: echo "__version__ = '${APP_VERSION}'" > version.py
+
       - name: Build executable
         shell: bash
         run: |

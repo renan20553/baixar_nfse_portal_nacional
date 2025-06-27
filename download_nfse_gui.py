@@ -18,6 +18,11 @@ from tkinter import filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
 import xml.etree.ElementTree as ET
 
+try:
+    from version import __version__  # type: ignore
+except Exception:
+    __version__ = "0.0.0"
+
 CONFIG_FILE = "config.json"
 
 @contextmanager
@@ -91,7 +96,7 @@ class App:
     def __init__(self, root, config):
         self.root = root
         self.config = config
-        self.root.title("Download NFS-e Portal Nacional")
+        self.root.title(f"Download NFS-e Portal Nacional v{__version__}")
         self.text = ScrolledText(root, width=100, height=30, font=("Consolas", 10))
         self.text.pack(fill=tk.BOTH, expand=True)
         self.status_label = tk.Label(root, text="Pronto", anchor='w')
