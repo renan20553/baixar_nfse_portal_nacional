@@ -16,6 +16,7 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
+import xml.etree.ElementTree as ET
 
 CONFIG_FILE = "config.json"
 
@@ -52,11 +53,33 @@ def salvar_ultimo_nsu(cnpj, nsu):
     with open(fname, "w") as f:
         f.write(str(nsu))
 
+def extrair_ano_mes(xml_bytes: bytes) -> tuple[str, str]:
+    now = datetime.datetime.now()
+    try:
+        root = ET.fromstring(xml_bytes)
+        el = root.find('.//{*}DataEmissao')
+        if el is not None and el.text:
+            txt = el.text.strip()
+            for fmt in ('%Y-%m-%d', '%d/%m/%Y'):
+                try:
+                    dt = datetime.datetime.strptime(txt[:10], fmt)
+                    return str(dt.year), f"{dt.month:02d}"
+                except Exception:
+                    continue
+            try:
+                dt = datetime.datetime.fromisoformat(txt.replace('Z', ''))
+                return str(dt.year), f"{dt.month:02d}"
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return str(now.year), f"{now.month:02d}"
+
 class App:
     def __init__(self, root, config):
         self.root = root
         self.config = config
-        self.root.title("Download NFS-e Nacional")
+        self.root.title("Download NFS-e Portal Nacional")
         self.text = ScrolledText(root, width=100, height=30, font=("Consolas", 10))
         self.text.pack(fill=tk.BOTH, expand=True)
         self.status_label = tk.Label(root, text="Pronto", anchor='w')
@@ -151,11 +174,12 @@ class App:
         add_entry(2, "cnpj", "CNPJ")
         add_entry(3, "output_dir", "Diretório XML", browse="dir")
         add_entry(4, "log_dir", "Diretório Log", browse="dir")
-        add_entry(5, "delay_seconds", "Delay (s)")
-        add_entry(6, "timeout", "Timeout (s)")
+        add_entry(5, "file_prefix", "Prefixo Arquivo")
+        add_entry(6, "delay_seconds", "Delay (s)")
+        add_entry(7, "timeout", "Timeout (s)")
 
         auto_start_var = tk.BooleanVar(value=bool(self.config.get("auto_start", False)))
-        tk.Checkbutton(win, text="Auto iniciar", variable=auto_start_var).grid(row=7, column=1, sticky="w", padx=5, pady=2)
+        tk.Checkbutton(win, text="Auto iniciar", variable=auto_start_var).grid(row=8, column=1, sticky="w", padx=5, pady=2)
 
         def save():
             new_cfg = self.config.copy()
@@ -174,7 +198,7 @@ class App:
             messagebox.showinfo("Configurações", "Configurações salvas com sucesso!")
             on_close()
 
-        tk.Button(win, text="Salvar", command=save).grid(row=8, column=0, columnspan=3, pady=5)
+        tk.Button(win, text="Salvar", command=save).grid(row=9, column=0, columnspan=3, pady=5)
 
     def download_nfse(self):
         try:
@@ -184,6 +208,7 @@ class App:
             CNPJ = cfg["cnpj"]
             OUTPUT_DIR = cfg["output_dir"]
             LOG_DIR = cfg["log_dir"]
+            FILE_PREFIX = cfg.get("file_prefix", "NFS-e")
             DELAY_SECONDS = int(cfg.get("delay_seconds", 60))
 
             os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -229,7 +254,8 @@ class App:
                                     arquivo_xml = nfse["ArquivoXml"]
                                     xml_gzip = base64.b64decode(arquivo_xml)
                                     xml_bytes = gzip.decompress(xml_gzip)
-                                    filename = os.path.join(OUTPUT_DIR, f"NFS-e_NSU_{nsu_item}_{chave}.xml")
+                                    ano, mes = extrair_ano_mes(xml_bytes)
+                                    filename = os.path.join(OUTPUT_DIR, f"{FILE_PREFIX}_{ano}-{mes}_{chave}.xml")
                                     if not os.path.exists(filename):
                                         with open(filename, "wb") as fxml:
                                             fxml.write(xml_bytes)
@@ -285,6 +311,7 @@ def ler_config():
     cfg.setdefault("delay_seconds", 60)
     cfg.setdefault("timeout", 30)
     cfg.setdefault("auto_start", False)
+    cfg.setdefault("file_prefix", "NFS-e")
     return cfg
 
 def salvar_config(cfg):

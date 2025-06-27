@@ -4,6 +4,7 @@
   "cnpj": "00000000000000",
   "output_dir": "./xml",
   "log_dir": "logs",
+  "file_prefix": "NFS-e",
   "delay_seconds": 10,
   "auto_start": false,
   "timeout": 30
