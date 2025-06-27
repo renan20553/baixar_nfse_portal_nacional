@@ -79,7 +79,7 @@ class App:
     def __init__(self, root, config):
         self.root = root
         self.config = config
-        self.root.title("Download NFS-e Nacional")
+        self.root.title("Download NFS-e Portal Nacional")
         self.text = ScrolledText(root, width=100, height=30, font=("Consolas", 10))
         self.text.pack(fill=tk.BOTH, expand=True)
         self.status_label = tk.Label(root, text="Pronto", anchor='w')
