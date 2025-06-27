@@ -1,6 +1,6 @@
 {
-  "cert_path": "path/to/certificate.pfx",
-  "cert_pass": "your_password",
+  "cert_path": "caminho/para/certificado.pfx",
+  "cert_pass": "sua_senha",
   "cnpj": "00000000000000",
   "output_dir": "./xml",
   "log_dir": "logs",
