@@ -17,6 +17,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+The `requirements.txt` file lists the required packages such as `requests` and `cryptography`. It also includes `pytest` for running the tests.
+
 ## Configuration
 
 Create a `config.json` file in the project root with the following keys:
