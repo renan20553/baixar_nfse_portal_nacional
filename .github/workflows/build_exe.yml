@@ -1,0 +1,38 @@
+name: Build Windows executable
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+
+      - name: Build executable
+        shell: bash
+        run: |
+          pyinstaller --onefile download_nfse_gui.py
+          cp config.json dist/
+          ls -R dist
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: download_nfse_gui
+          path: dist/
