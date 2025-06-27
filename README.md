@@ -74,11 +74,20 @@ O programa lê o `config.json`, faz login com o certificado e salva as notas no 
 
 ## Gerar executável com PyInstaller
 
-Para criar um executável standalone:
+Para criar um executável standalone (sem abrir janela de console):
 
 ```bash
 pip install pyinstaller
-pyinstaller --onefile download_nfse_gui.py
+pyinstaller --onefile --noconsole download_nfse_gui.py
 ```
-
 O executável será gerado dentro da pasta `dist`.
+Copie o `config.json` e o arquivo de certificado (`.pfx` ou `.pem`) para esse
+diretório para que o programa consiga localizá-los em tempo de execução.
+
+Um script auxiliar `build_exe.sh` está disponível para automatizar essas etapas,
+já utilizando a opção `--noconsole`.
+
+Além disso, o repositório possui um workflow do **GitHub Actions** que realiza
+a compilação em um ambiente Windows. Ao enviar alterações para a branch
+`main`, todo o conteúdo da pasta `dist` é disponibilizado como artefato na aba
+*Actions*. O executável gerado tem o nome `download_nfse_gui.exe`.
