@@ -4,7 +4,7 @@
 
 set -e
 
-pyinstaller --onefile --noconsole download_nfse_gui.py
+pyinstaller --onefile --noconsole --noupx download_nfse_gui.py
 
 # Copy configuration file next to the executable
 cp config.json dist/
