@@ -62,3 +62,10 @@ def test_extrair_ano_mes() -> None:
     ano, mes = extrair_ano_mes(xml.encode())
     assert ano == "2024"
     assert mes == "05"
+
+
+def test_extrair_ano_mes_dhemi() -> None:
+    xml = "<root><dhEmi>2025-06-25T10:49:08-03:00</dhEmi></root>"
+    ano, mes = extrair_ano_mes(xml.encode())
+    assert ano == "2025"
+    assert mes == "06"
