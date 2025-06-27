@@ -27,6 +27,7 @@ Create a `config.json` file in the project root with the following keys:
 - `cert_pass`: Password for the certificate.
 - `cnpj`: The company's CNPJ used to log in to the portal.
 - `output_dir`: Directory where downloaded NFSe XML files will be saved.
+- `log_dir`: Directory where log files will be written.
 - `delay_seconds`: Number of seconds to wait between requests.
 - `auto_start`: `true` to start downloading automatically when the script launches.
 - `timeout` *(optional)*: Request timeout in seconds. Defaults to `30`.
@@ -39,6 +40,7 @@ Example `config.json`:
   "cert_pass": "my_password",
   "cnpj": "12345678000199",
   "output_dir": "./xml",
+  "log_dir": "./logs",
   "delay_seconds": 2,
   "auto_start": true,
   "timeout": 30

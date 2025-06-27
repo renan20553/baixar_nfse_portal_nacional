@@ -110,6 +110,7 @@ class App:
             DELAY_SECONDS = int(cfg.get("delay_seconds", 60))
 
             os.makedirs(OUTPUT_DIR, exist_ok=True)
+            os.makedirs(LOG_DIR, exist_ok=True)
             BASE_URL = "https://adn.nfse.gov.br/contribuintes/DFe"
             log_name = os.path.join(LOG_DIR, f"log_nfse_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt")
             self.log_file = open(log_name, "w", encoding="utf-8")
