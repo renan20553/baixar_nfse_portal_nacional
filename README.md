@@ -51,7 +51,7 @@ Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
   "output_dir": "./xml",
   "log_dir": "./logs",
   "delay_seconds": 2,
-  "auto_start": true,
+  "auto_start": false,
   "timeout": 30
 }
 ```
@@ -74,7 +74,7 @@ O programa lê o `config.json`, faz login com o certificado e salva as notas no 
 
 ## Gerar executável com PyInstaller
 
-Para criar um executável standalone (sem abrir janela de console):
+Para criar um executável standalone:
 
 ```bash
 pip install pyinstaller
