@@ -212,6 +212,7 @@ class App:
                         resposta = resp.json()
                         documentos = resposta.get("LoteDFe", [])
                         if resposta.get("StatusProcessamento") == "DOCUMENTOS_LOCALIZADOS" and documentos:
+                            documentos = sorted(documentos, key=lambda d: int(d.get("NSU", 0)))
                             nsu_maior = nsu
                             for nfse in documentos:
                                 nsu_item = int(nfse["NSU"])
