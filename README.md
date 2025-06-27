@@ -17,7 +17,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` file lists the required packages such as `requests` and `cryptography`. It also includes `pytest` for running the tests.
+The `requirements.txt` file lists the required packages such as `requests` and `cryptography`.
 
 ## Configuration
 
@@ -47,7 +47,7 @@ Example `config.json`:
 
 ## Running
 
-Both `download_nfse.py` and `download_nfse_gui.py` read this configuration. Run the GUI with:
+The provided `download_nfse_gui.py` script reads this configuration. Run it with:
 
 ```bash
 python3 download_nfse_gui.py
