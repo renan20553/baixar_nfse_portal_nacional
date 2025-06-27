@@ -5,5 +5,6 @@
   "output_dir": "./xml",
   "log_dir": "logs",
   "delay_seconds": 10,
-  "auto_start": false
+  "auto_start": false,
+  "timeout": 30
 }

@@ -130,7 +130,7 @@ class App:
                     url = f"{BASE_URL}/{nsu:020d}?cnpj={CNPJ}"
                     self.write(f"Consultando NSU {nsu} para CNPJ {CNPJ}...", log=True)
                     try:
-                        resp = sess.get(url)
+                        resp = sess.get(url, timeout=self.config.get("timeout", 30))
                     except Exception as e:
                         self.write(f"Erro de conexão: {e}", log=True)
                         salvar_ultimo_nsu(CNPJ, nsu)
