@@ -5,15 +5,27 @@ import requests
 CONFIG_PATH = Path('config.json')
 DEFAULT_TIMEOUT = 30
 
-def load_config():
+def load_config() -> dict:
+    """Load configuration from ``config.json``.
+
+    Returns a dictionary with at least the ``timeout`` key. If the file does
+    not exist or is invalid, a dictionary with the default timeout is
+    returned.
+    """
     if CONFIG_PATH.exists():
-        with CONFIG_PATH.open() as f:
-            try:
+        try:
+            with CONFIG_PATH.open("r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data.get('timeout', DEFAULT_TIMEOUT)
-            except json.JSONDecodeError:
-                return DEFAULT_TIMEOUT
-    return DEFAULT_TIMEOUT
+        except Exception:
+            data = {}
+    else:
+        data = {}
+
+    if not isinstance(data, dict):
+        data = {}
+
+    data.setdefault("timeout", DEFAULT_TIMEOUT)
+    return data
 
 def download_nfse(sess: requests.Session, url: str) -> bytes:
     """Download NFSe file using the provided session and URL.
@@ -30,7 +42,8 @@ def download_nfse(sess: requests.Session, url: str) -> bytes:
     bytes
         The response content.
     """
-    timeout = load_config()
+    config = load_config()
+    timeout = config.get("timeout", DEFAULT_TIMEOUT)
     resp = sess.get(url, timeout=timeout)
     resp.raise_for_status()
     return resp.content

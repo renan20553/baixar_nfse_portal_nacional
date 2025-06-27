@@ -29,6 +29,7 @@ Create a `config.json` file in the project root with the following keys:
 - `output_dir`: Directory where downloaded NFSe XML files will be saved.
 - `delay_seconds`: Number of seconds to wait between requests.
 - `auto_start`: `true` to start downloading automatically when the script launches.
+- `timeout` *(optional)*: Request timeout in seconds. Defaults to `30`.
 
 Example `config.json`:
 
@@ -39,13 +40,14 @@ Example `config.json`:
   "cnpj": "12345678000199",
   "output_dir": "./xml",
   "delay_seconds": 2,
-  "auto_start": true
+  "auto_start": true,
+  "timeout": 30
 }
 ```
 
 ## Running
 
-Execute the GUI downloader with Python:
+Both `download_nfse.py` and `download_nfse_gui.py` read this configuration. Run the GUI with:
 
 ```bash
 python3 download_nfse_gui.py

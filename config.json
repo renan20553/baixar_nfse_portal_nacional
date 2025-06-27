@@ -1,3 +1,9 @@
 {
+  "cert_path": "path/to/certificate.pfx",
+  "cert_pass": "your_password",
+  "cnpj": "00000000000000",
+  "output_dir": "./xml",
+  "delay_seconds": 60,
+  "auto_start": false,
   "timeout": 30
 }
