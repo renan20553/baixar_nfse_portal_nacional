@@ -64,6 +64,7 @@ class App:
         self.logger = logging.getLogger(__name__)
         self.running = False
         self.thread = None
+        self.user_stop = False
 
         self.start_button = tk.Button(root, text="Iniciar Download", command=self.start)
         self.start_button.pack(side=tk.LEFT, padx=5, pady=5)
@@ -90,6 +91,7 @@ class App:
     def start(self):
         if self.running:
             return
+        self.user_stop = False
         self.running = True
         self.start_button.config(state=tk.DISABLED)
         self.stop_button.config(state=tk.NORMAL)
@@ -101,6 +103,7 @@ class App:
 
     def stop(self):
         self.running = False
+        self.user_stop = True
         self.status_label.config(text="Encerrando... aguarde")
         self.write("Parando processo... aguarde.", log=True)
         self.start_button.config(state=tk.NORMAL)
@@ -264,7 +267,7 @@ class App:
             self.running = False
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
-            if self.config.get("auto_start"):
+            if self.config.get("auto_start") and not self.user_stop:
                 self.root.after(1000, self.root.destroy)
 
 REQUIRED_FIELDS = ["cert_path", "cert_pass", "cnpj", "output_dir", "log_dir"]

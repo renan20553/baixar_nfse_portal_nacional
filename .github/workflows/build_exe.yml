@@ -24,15 +24,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pyinstaller
 
+      - name: Generate version
+        shell: bash
+        run: echo "APP_VERSION=${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+
       - name: Build executable
         shell: bash
         run: |
           pyinstaller --onefile --noconsole download_nfse_gui.py
           cp config.json dist/
+          mv dist/download_nfse_gui.exe dist/download_nfse_gui_${APP_VERSION}.exe
           ls -R dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: download_nfse_gui
+          name: download_nfse_gui_${{ env.APP_VERSION }}
           path: dist/
