@@ -91,3 +91,12 @@ Além disso, o repositório possui um workflow do **GitHub Actions** que realiza
 a compilação em um ambiente Windows. Ao enviar alterações para a branch
 `main`, todo o conteúdo da pasta `dist` é disponibilizado como artefato na aba
 *Actions*. O executável gerado tem o nome `download_nfse_gui.exe`.
+
+## Testes
+
+Para rodar a suíte de testes, instale o `pytest` em seu ambiente e execute:
+
+```bash
+pip install pytest
+pytest
+```
