@@ -259,6 +259,8 @@ class App:
             self.running = False
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
+            if self.config.get("auto_start"):
+                self.root.after(1000, self.root.destroy)
 
 def ler_config():
     if not os.path.exists(CONFIG_FILE):
