@@ -6,6 +6,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from nfse.pdf_downloader import NFSePDFDownloader
 
 
+def test_base_url_constant():
+    assert (
+        NFSePDFDownloader.BASE_URL
+        == "https://sefin.nfse.gov.br/sefinnacional/danfse"
+    )
+
+
 class DummyResp:
     def __init__(self, status, content=b""):
         self.status_code = status
@@ -28,4 +35,4 @@ def test_baixar(tmp_path: Path):
     dest = tmp_path / "nota.pdf"
     assert dl.baixar("123", str(dest))
     assert dest.read_bytes() == b"pdfdata"
-    assert session.calls
+    assert session.calls == [f"{NFSePDFDownloader.BASE_URL}/123"]
