@@ -42,6 +42,8 @@ Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
 - `auto_start`: `true` para iniciar o download automaticamente ao abrir o programa.
 - `timeout`: tempo limite das requisições em segundos (padrão `30`).
 
+**Importante:** o certificado precisa pertencer ao mesmo CNPJ utilizado no portal. Não é possível utilizar o certificado da matriz para baixar notas de uma filial.
+
 ### Exemplo
 
 ```json
