@@ -163,7 +163,11 @@ class NFSeDownloader:
                         if resposta.get("StatusProcessamento") == "DOCUMENTOS_LOCALIZADOS" and documentos:
                             documentos = sorted(documentos, key=lambda d: int(d.get("NSU", 0)))
                             nsu_maior = nsu
+                            stop_loop = False
                             for nfse in documentos:
+                                if not running():
+                                    stop_loop = True
+                                    break
                                 nsu_item = int(nfse["NSU"])
                                 chave = nfse["ChaveAcesso"]
                                 if nsu_item in nsus_baixados:
@@ -181,7 +185,7 @@ class NFSeDownloader:
                                         fxml.write(xml_bytes)
                                     write(f"Baixado e salvo: {filename}", log=True)
                                     total_baixados += 1
-                                if download_pdf:
+                                if download_pdf and running():
                                     pdf_file = os.path.join(
                                         output_dir,
                                         f"{file_prefix}_{ano}-{mes}_{chave}.pdf",
@@ -198,6 +202,9 @@ class NFSeDownloader:
                                                 log=True,
                                             )
                                 nsu_maior = max(nsu_maior, nsu_item)
+                            if stop_loop or not running():
+                                self.salvar_ultimo_nsu(nsu, cnpj)
+                                break
                             self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             nsu = nsu_maior + 1
                         else:
