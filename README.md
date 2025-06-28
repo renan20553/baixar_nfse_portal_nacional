@@ -76,6 +76,9 @@ O programa lê o `config.json`, faz login com o certificado e salva as notas no 
 Os XMLs são nomeados seguindo o padrão `<prefixo>_AAAA-MM_<chave>.xml` definido
 pela chave `file_prefix`.
 
+A interface gráfica também possui um botão **Sobre** que exibe a versão do
+aplicativo, o autor e o texto completo da licença MIT utilizada.
+
 ## Gerar executável com PyInstaller
 
 Para criar um executável standalone:
