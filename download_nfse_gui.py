@@ -23,6 +23,14 @@ try:
 except Exception:
     __version__ = "0.0.0"
 
+LICENSE_FILE = Path(sys.argv[0]).resolve().with_name("LICENSE")
+if not LICENSE_FILE.exists():
+    LICENSE_FILE = Path(__file__).resolve().with_name("LICENSE")
+try:
+    LICENSE_TEXT = LICENSE_FILE.read_text(encoding="utf-8").strip()
+except Exception:
+    LICENSE_TEXT = "MIT License"
+
 CONFIG_FILE = "config.json"
 
 @contextmanager
@@ -113,6 +121,9 @@ class App:
 
         self.settings_button = tk.Button(root, text="Configurações", command=self.open_settings)
         self.settings_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+        self.about_button = tk.Button(root, text="Sobre", command=self.show_about)
+        self.about_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.settings_win = None  # referencia para a janela de configuração
 
@@ -216,6 +227,15 @@ class App:
             on_close()
 
         tk.Button(win, text="Salvar", command=save).grid(row=9, column=0, columnspan=3, pady=5)
+
+    def show_about(self) -> None:
+        """Display information about the application."""
+        info = (
+            f"Download NFS-e Portal Nacional v{__version__}\n"
+            "Autor: Renan R. Santos\n\n"
+            f"{LICENSE_TEXT}"
+        )
+        messagebox.showinfo("Sobre", info)
 
     def download_nfse(self):
         try:

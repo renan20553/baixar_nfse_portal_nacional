@@ -6,6 +6,9 @@ set -e
 
 pyinstaller --onefile --noconsole --noupx download_nfse_gui.py
 
+# Copy license so the About dialog can read it when packaged
+cp LICENSE dist/
+
 # Copy configuration file next to the executable
 cp config.json dist/
 
