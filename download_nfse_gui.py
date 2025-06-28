@@ -135,6 +135,9 @@ class App:
         auto_start_var = tk.BooleanVar(value=bool(self.config.get("auto_start", False)))
         tk.Checkbutton(win, text="Auto iniciar", variable=auto_start_var).grid(row=8, column=1, sticky="w", padx=5, pady=2)
 
+        pdf_var = tk.BooleanVar(value=bool(self.config.get("download_pdf", False)))
+        tk.Checkbutton(win, text="Baixar PDF", variable=pdf_var).grid(row=9, column=1, sticky="w", padx=5, pady=2)
+
         def save():
             new_cfg = self.config.copy()
             for k, v in vars_.items():
@@ -147,12 +150,13 @@ class App:
                 else:
                     new_cfg[k] = v.get()
             new_cfg["auto_start"] = auto_start_var.get()
+            new_cfg["download_pdf"] = pdf_var.get()
             self.config = new_cfg
             salvar_config(new_cfg)
             messagebox.showinfo("Configurações", "Configurações salvas com sucesso!")
             on_close()
 
-        tk.Button(win, text="Salvar", command=save).grid(row=9, column=0, columnspan=3, pady=5)
+        tk.Button(win, text="Salvar", command=save).grid(row=10, column=0, columnspan=3, pady=5)
 
     def open_nsu_editor(self):
         win = tk.Toplevel(self.root)
@@ -263,6 +267,7 @@ def ler_config():
     cfg.setdefault("timeout", 30)
     cfg.setdefault("auto_start", False)
     cfg.setdefault("file_prefix", "NFS-e")
+    cfg.setdefault("download_pdf", False)
     return cfg
 
 def salvar_config(cfg):

@@ -12,6 +12,8 @@ import xml.etree.ElementTree as ET
 
 import requests
 
+from .pdf_downloader import NFSePDFDownloader
+
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
     PrivateFormat,
@@ -121,6 +123,7 @@ class NFSeDownloader:
         file_prefix = cfg.get("file_prefix", "NFS-e")
         delay_seconds = int(cfg.get("delay_seconds", 60))
         timeout = int(cfg.get("timeout", 30))
+        download_pdf = bool(cfg.get("download_pdf", False))
 
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(log_dir, exist_ok=True)
@@ -141,6 +144,7 @@ class NFSeDownloader:
             with requests.Session() as sess:
                 sess.cert = pem_cert
                 sess.verify = True
+                pdf_dl = NFSePDFDownloader(sess, timeout)
 
                 nsu = self.ler_ultimo_nsu(cnpj)
                 while running():
@@ -177,6 +181,22 @@ class NFSeDownloader:
                                         fxml.write(xml_bytes)
                                     write(f"Baixado e salvo: {filename}", log=True)
                                     total_baixados += 1
+                                if download_pdf:
+                                    pdf_file = os.path.join(
+                                        output_dir,
+                                        f"{file_prefix}_{ano}-{mes}_{chave}.pdf",
+                                    )
+                                    if not os.path.exists(pdf_file):
+                                        if pdf_dl.baixar(chave, pdf_file):
+                                            write(
+                                                f"PDF baixado e salvo: {pdf_file}",
+                                                log=True,
+                                            )
+                                        else:
+                                            write(
+                                                f"Falha ao baixar PDF: {chave}",
+                                                log=True,
+                                            )
                                 nsu_maior = max(nsu_maior, nsu_item)
                             self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             nsu = nsu_maior + 1
