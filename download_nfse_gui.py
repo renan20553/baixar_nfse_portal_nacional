@@ -47,6 +47,9 @@ class App:
         self.about_button = tk.Button(root, text="Sobre", command=self.show_about)
         self.about_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+        self.nsu_button = tk.Button(root, text="Editar NSU", command=self.open_nsu_editor)
+        self.nsu_button.pack(side=tk.LEFT, padx=5, pady=5)
+
         self.settings_win = None  # referencia para a janela de configuração
         self.about_win = None  # referencia para a janela Sobre
 
@@ -150,6 +153,51 @@ class App:
             on_close()
 
         tk.Button(win, text="Salvar", command=save).grid(row=9, column=0, columnspan=3, pady=5)
+
+    def open_nsu_editor(self):
+        win = tk.Toplevel(self.root)
+        win.title("Editar NSU")
+
+        file_var = tk.StringVar(value=f"ultimo_nsu_{self.config.get('cnpj','')}.txt")
+        nsu_var = tk.StringVar(value=str(self.downloader.ler_ultimo_nsu(self.config.get("cnpj"))))
+
+        tk.Label(win, text="Arquivo NSU").grid(row=0, column=0, sticky="w", padx=5, pady=2)
+        tk.Entry(win, textvariable=file_var, width=40).grid(row=0, column=1, padx=5, pady=2)
+
+        def choose_file():
+            path = filedialog.askopenfilename(parent=win, filetypes=[("TXT", "*.txt"), ("All", "*.*")])
+            if path:
+                file_var.set(path)
+                if os.path.exists(path):
+                    try:
+                        with open(path, "r", encoding="utf-8") as f:
+                            nsu_var.set(str(int(f.read().strip())))
+                    except Exception:
+                        pass
+
+        tk.Button(win, text="...", command=choose_file).grid(row=0, column=2, padx=2, pady=2)
+
+        tk.Label(win, text="NSU").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+        tk.Entry(win, textvariable=nsu_var, width=20).grid(row=1, column=1, padx=5, pady=2)
+
+        def save():
+            try:
+                nsu = int(nsu_var.get())
+            except ValueError:
+                messagebox.showerror("Erro", "NSU inválido")
+                return
+            self.downloader.salvar_ultimo_nsu(nsu, self.config.get("cnpj"))
+            # also save to chosen path if different
+            path = file_var.get()
+            try:
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(str(nsu))
+            except Exception:
+                pass
+            messagebox.showinfo("NSU", "NSU salvo com sucesso!")
+            win.destroy()
+
+        tk.Button(win, text="Salvar", command=save).grid(row=2, column=0, columnspan=3, pady=5)
 
     def show_about(self) -> None:
         """Display information about the application with the license text."""
