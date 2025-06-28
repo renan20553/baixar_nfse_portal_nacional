@@ -9,7 +9,7 @@ from nfse.pdf_downloader import NFSePDFDownloader
 def test_base_url_constant():
     assert (
         NFSePDFDownloader.BASE_URL
-        == "https://sefin.nfse.gov.br/sefinnacional//danfse"
+        == "https://sefin.nfse.gov.br/sefinnacional/danfse"
     )
 
 
