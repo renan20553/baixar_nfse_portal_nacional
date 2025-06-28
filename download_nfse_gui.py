@@ -126,6 +126,7 @@ class App:
         self.about_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.settings_win = None  # referencia para a janela de configuração
+        self.about_win = None  # referencia para a janela Sobre
 
         if self.config.get("auto_start", False):
             self.root.after(500, self.start)  # pequeno delay para interface carregar antes de iniciar
@@ -229,13 +230,27 @@ class App:
         tk.Button(win, text="Salvar", command=save).grid(row=9, column=0, columnspan=3, pady=5)
 
     def show_about(self) -> None:
-        """Display information about the application."""
-        info = (
+        """Display information about the application with the license text."""
+        if self.about_win and self.about_win.winfo_exists():
+            self.about_win.lift()
+            self.about_win.focus_force()
+            return
+
+        win = tk.Toplevel(self.root)
+        self.about_win = win
+        win.title("Sobre")
+
+        text = ScrolledText(win, width=80, height=25, wrap=tk.WORD)
+        text.insert(
+            tk.END,
             f"Download NFS-e Portal Nacional v{__version__}\n"
             "Autor: Renan R. Santos\n\n"
-            f"{LICENSE_TEXT}"
+            f"{LICENSE_TEXT}",
         )
-        messagebox.showinfo("Sobre", info)
+        text.config(state=tk.DISABLED)
+        text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        tk.Button(win, text="Fechar", command=win.destroy).pack(pady=5)
 
     def download_nfse(self):
         try:
