@@ -231,14 +231,25 @@ class App:
 
     def show_about(self) -> None:
         """Display information about the application with the license text."""
-        if self.about_win and self.about_win.winfo_exists():
-            self.about_win.lift()
-            self.about_win.focus_force()
-            return
+        if self.about_win is not None:
+            try:
+                exists = self.about_win.winfo_exists()
+            except Exception:
+                exists = False
+            if exists:
+                self.about_win.lift()
+                self.about_win.focus_force()
+                return
 
         win = tk.Toplevel(self.root)
         self.about_win = win
         win.title("Sobre")
+
+        def on_close() -> None:
+            self.about_win = None
+            win.destroy()
+
+        win.protocol("WM_DELETE_WINDOW", on_close)
 
         text = ScrolledText(win, width=80, height=25, wrap=tk.WORD)
         about_text = (
@@ -250,7 +261,7 @@ class App:
         text.config(state=tk.DISABLED)
         text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        tk.Button(win, text="Fechar", command=win.destroy).pack(pady=5)
+        tk.Button(win, text="Fechar", command=on_close).pack(pady=5)
 
     def download_nfse(self):
         try:
