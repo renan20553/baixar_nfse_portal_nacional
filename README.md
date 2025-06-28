@@ -110,3 +110,7 @@ Para rodar a suíte de testes, instale o `pytest` em seu ambiente e execute:
 pip install pytest
 pytest
 ```
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
