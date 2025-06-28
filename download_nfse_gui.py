@@ -23,9 +23,34 @@ try:
 except Exception:
     __version__ = "0.0.0"
 
-LICENSE_FILE = Path(sys.argv[0]).resolve().with_name("LICENSE")
-if not LICENSE_FILE.exists():
-    LICENSE_FILE = Path(__file__).resolve().with_name("LICENSE")
+
+def get_license_path() -> Path:
+    """Return the path to the license file.
+
+    The search order is:
+
+    1. Command line argument ``--license=PATH``.
+    2. Environment variable ``LICENSE_PATH``.
+    3. ``LICENSE`` next to ``sys.argv[0]`` if it exists, falling back to
+       the directory of ``__file__``.
+    """
+
+    prefix = "--license="
+    for arg in sys.argv[1:]:
+        if arg.startswith(prefix):
+            return Path(arg[len(prefix) :]).expanduser().resolve()
+
+    env_path = os.getenv("LICENSE_PATH")
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+
+    path = Path(sys.argv[0]).resolve().with_name("LICENSE")
+    if path.exists():
+        return path
+    return Path(__file__).resolve().with_name("LICENSE")
+
+
+LICENSE_FILE = get_license_path()
 try:
     LICENSE_TEXT = LICENSE_FILE.read_text(encoding="utf-8").strip()
 except Exception:
