@@ -59,6 +59,19 @@ def test_ler_nsu_padrao(tmp_path: Path) -> None:
         os.chdir(cwd)
 
 
+def test_salvar_nsu_persiste_novo_obj(tmp_path: Path) -> None:
+    cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        cfg = {"cnpj": "00000000000001"}
+        dl = NFSeDownloader(cfg)
+        dl.salvar_ultimo_nsu(99)
+        dl2 = NFSeDownloader(cfg)
+        assert dl2.ler_ultimo_nsu() == 99
+    finally:
+        os.chdir(cwd)
+
+
 def test_extrair_ano_mes() -> None:
     xml = "<root><DataEmissao>2024-05-10T10:00:00</DataEmissao></root>"
     ano, mes = NFSeDownloader.extrair_ano_mes(xml.encode())
