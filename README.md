@@ -93,6 +93,26 @@ O executável será gerado dentro da pasta `dist`.
 Copie o `config.json` e o arquivo de certificado (`.pfx` ou `.pem`) para esse
 diretório para que o programa consiga localizá-los em tempo de execução.
 
+### Incluir configurações e recursos adicionais
+
+Se sua aplicação precisar de outros arquivos, use `--add-data` para que o
+PyInstaller os incorpore ao executável. O formato do argumento é
+`<arquivo>;<destino>` no Windows ou `<arquivo>:<destino>` no Linux/macOS. Exemplo:
+
+```bash
+pyinstaller --onefile --noconsole --noupx \
+  --add-data "config.json;." download_nfse_gui.py
+```
+
+Em modo `--onefile` todos os dados embutidos são extraídos para um diretório
+temporário quando o executável é iniciado e removidos ao final da execução.
+
+### Verificação de integridade
+
+Para garantir que o binário não foi alterado, considere assinar digitalmente o
+executável (por exemplo, utilizando **Authenticode** no Windows) ou publicar o
+checksum SHA-256 para que os usuários possam conferir a integridade do arquivo.
+
 Um script auxiliar `build_exe.sh` está disponível para automatizar essas etapas,
 já utilizando a opção `--noconsole` e adicionando `--noupx` por padrão.
 
