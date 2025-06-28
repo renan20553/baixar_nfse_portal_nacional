@@ -1,7 +1,7 @@
 class NFSePDFDownloader:
     """Simple helper to download PDF documents from the national portal."""
 
-    BASE_URL = "https://adn.nfse.gov.br/contribuintes/danfse"
+    BASE_URL = "https://sefin.nfse.gov.br/sefinnacional/danfse"
 
     def __init__(self, session, timeout: int = 30):
         self.session = session
