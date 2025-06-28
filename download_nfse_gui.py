@@ -23,7 +23,9 @@ try:
 except Exception:
     __version__ = "0.0.0"
 
-LICENSE_FILE = Path(__file__).resolve().with_name("LICENSE")
+LICENSE_FILE = Path(sys.argv[0]).resolve().with_name("LICENSE")
+if not LICENSE_FILE.exists():
+    LICENSE_FILE = Path(__file__).resolve().with_name("LICENSE")
 try:
     LICENSE_TEXT = LICENSE_FILE.read_text(encoding="utf-8").strip()
 except Exception:
