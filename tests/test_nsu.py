@@ -33,17 +33,18 @@ sys.modules[
     "cryptography.hazmat.primitives.serialization.pkcs12"
 ] = pkcs12
 
-from download_nfse_gui import ler_ultimo_nsu, salvar_ultimo_nsu, extrair_ano_mes
+from nfse.downloader import NFSeDownloader
 
 
 def test_salvar_e_ler_nsu(tmp_path: Path) -> None:
     cwd = os.getcwd()
     os.chdir(tmp_path)
     try:
-        salvar_ultimo_nsu("12345678901234", 42)
+        dl = NFSeDownloader({"cnpj": "12345678901234"})
+        dl.salvar_ultimo_nsu(42)
         file_path = tmp_path / "ultimo_nsu_12345678901234.txt"
         assert file_path.read_text() == "42"
-        assert ler_ultimo_nsu("12345678901234") == 42
+        assert dl.ler_ultimo_nsu() == 42
     finally:
         os.chdir(cwd)
 
@@ -52,20 +53,21 @@ def test_ler_nsu_padrao(tmp_path: Path) -> None:
     cwd = os.getcwd()
     os.chdir(tmp_path)
     try:
-        assert ler_ultimo_nsu("99999999999999") == 1
+        dl = NFSeDownloader({"cnpj": "99999999999999"})
+        assert dl.ler_ultimo_nsu() == 1
     finally:
         os.chdir(cwd)
 
 
 def test_extrair_ano_mes() -> None:
     xml = "<root><DataEmissao>2024-05-10T10:00:00</DataEmissao></root>"
-    ano, mes = extrair_ano_mes(xml.encode())
+    ano, mes = NFSeDownloader.extrair_ano_mes(xml.encode())
     assert ano == "2024"
     assert mes == "05"
 
 
 def test_extrair_ano_mes_dhemi() -> None:
     xml = "<root><dhEmi>2025-06-25T10:49:08-03:00</dhEmi></root>"
-    ano, mes = extrair_ano_mes(xml.encode())
+    ano, mes = NFSeDownloader.extrair_ano_mes(xml.encode())
     assert ano == "2025"
     assert mes == "06"
