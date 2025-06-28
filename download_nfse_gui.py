@@ -152,6 +152,8 @@ class App:
             new_cfg["auto_start"] = auto_start_var.get()
             new_cfg["download_pdf"] = pdf_var.get()
             self.config = new_cfg
+            # Update the downloader instance so new settings take effect
+            self.downloader.config = new_cfg
             salvar_config(new_cfg)
             messagebox.showinfo("Configurações", "Configurações salvas com sucesso!")
             on_close()
