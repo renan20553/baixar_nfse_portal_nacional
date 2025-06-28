@@ -186,7 +186,7 @@ class NFSeDownloader:
                                 if not os.path.exists(filename):
                                     with open(filename, "wb") as fxml:
                                         fxml.write(xml_bytes)
-                                    write(f"Baixado e salvo: {filename}", log=True)
+                                    write(f"XML Baixado e salvo: {filename}", log=True)
                                     total_baixados += 1
                                 if download_pdf and running():
                                     pdf_file = os.path.join(
@@ -205,8 +205,9 @@ class NFSeDownloader:
                                                 log=True,
                                             )
                                 nsu_maior = max(nsu_maior, nsu_item)
+                                self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             if stop_loop or not running():
-                                self.salvar_ultimo_nsu(nsu, cnpj)
+                                self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                                 break
                             self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             nsu = nsu_maior + 1
