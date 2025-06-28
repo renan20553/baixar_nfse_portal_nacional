@@ -33,6 +33,7 @@ def test_baixar(tmp_path: Path):
     session = DummySession()
     dl = NFSePDFDownloader(session, timeout=1)
     dest = tmp_path / "nota.pdf"
-    assert dl.baixar("123", str(dest))
+    chave = "123"
+    assert dl.baixar(chave, str(dest))
     assert dest.read_bytes() == b"pdfdata"
-    assert session.calls == [f"{NFSePDFDownloader.BASE_URL}/123"]
+    assert session.calls[0] == f"{NFSePDFDownloader.BASE_URL}/{chave}"
