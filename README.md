@@ -38,6 +38,7 @@ Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
 - `output_dir`: diretório onde os XML baixados serão salvos.
 - `log_dir`: diretório onde os arquivos de log serão criados.
 - `file_prefix`: texto prefixo para os nomes dos arquivos XML.
+- `download_pdf`: `true` para baixar o PDF de cada NFS-e.
 - `delay_seconds`: intervalo em segundos entre as consultas ao portal.
 - `auto_start`: `true` para iniciar o download automaticamente ao abrir o programa.
 - `timeout`: tempo limite das requisições em segundos (padrão `30`).
@@ -54,6 +55,7 @@ Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
   "output_dir": "./xml",
   "log_dir": "./logs",
   "file_prefix": "NFS-e",
+  "download_pdf": false,
   "delay_seconds": 2,
   "auto_start": false,
   "timeout": 30

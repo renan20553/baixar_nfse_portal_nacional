@@ -5,6 +5,7 @@
   "output_dir": "./xml",
   "log_dir": "logs",
   "file_prefix": "NFS-e",
+  "download_pdf": false,
   "delay_seconds": 10,
   "auto_start": false,
   "timeout": 30
