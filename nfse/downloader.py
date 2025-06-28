@@ -30,6 +30,7 @@ class NFSeDownloader:
     def __init__(self, config: dict):
         self.config = config
         self.logger = logging.getLogger(__name__)
+        self.session: Optional[requests.Session] = None
 
     def ler_ultimo_nsu(self, cnpj: Optional[str] = None) -> int:
         """Return the last stored NSU for ``cnpj`` (defaults to config)."""
@@ -141,18 +142,20 @@ class NFSeDownloader:
         total_baixados = 0
 
         with self.pfx_to_pem(cert_path, cert_pass) as pem_cert:
-            with requests.Session() as sess:
-                sess.cert = pem_cert
-                sess.verify = True
-                pdf_dl = NFSePDFDownloader(sess, timeout)
+            self.session = requests.Session()
+            sess = self.session
+            sess.cert = pem_cert
+            sess.verify = True
+            pdf_dl = NFSePDFDownloader(sess, timeout)
 
-                nsu = self.ler_ultimo_nsu(cnpj)
+            nsu = self.ler_ultimo_nsu(cnpj)
+            try:
                 while running():
                     url = f"{base_url}/{nsu:020d}?cnpj={cnpj}"
                     write(f"Consultando NSU {nsu} para CNPJ {cnpj}...", log=True)
                     try:
                         resp = sess.get(url, timeout=timeout)
-                    except Exception as e:
+                    except requests.exceptions.RequestException as e:
                         self.logger.error("Erro de conexão: %s", e)
                         write(f"Erro de conexão: {e}", log=True)
                         self.salvar_ultimo_nsu(nsu, cnpj)
@@ -219,7 +222,18 @@ class NFSeDownloader:
                         write(f"Erro: {resp.status_code} {resp.text}", log=True)
                         self.salvar_ultimo_nsu(nsu, cnpj)
                         break
+            finally:
+                sess.close()
+                self.session = None
 
         write(f"Processo concluído. Total baixados: {total_baixados}", log=True)
+
+    def close(self) -> None:
+        """Close the internal requests session if it exists."""
+        if self.session is not None:
+            try:
+                self.session.close()
+            finally:
+                self.session = None
 
 

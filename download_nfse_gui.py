@@ -81,6 +81,9 @@ class App:
     def stop(self):
         self.running = False
         self.user_stop = True
+        self.downloader.close()
+        if self.thread and self.thread.is_alive():
+            self.thread.join(timeout=1)
         self.status_label.config(text="Encerrando... aguarde")
         self.write("Parando processo... aguarde.", log=True)
         self.start_button.config(state=tk.NORMAL)
