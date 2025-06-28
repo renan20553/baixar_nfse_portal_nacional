@@ -25,6 +25,12 @@ except Exception:
 
 LICENSE_FILE = Path(sys.argv[0]).resolve().with_name("LICENSE")
 if not LICENSE_FILE.exists():
+    LICENSE_FILE = Path(sys.executable).resolve().with_name("LICENSE")
+if not LICENSE_FILE.exists() and hasattr(sys, "_MEIPASS"):
+    candidate = Path(sys._MEIPASS) / "LICENSE"
+    if candidate.exists():
+        LICENSE_FILE = candidate
+if not LICENSE_FILE.exists():
     LICENSE_FILE = Path(__file__).resolve().with_name("LICENSE")
 try:
     LICENSE_TEXT = LICENSE_FILE.read_text(encoding="utf-8").strip()
