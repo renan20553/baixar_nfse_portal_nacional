@@ -77,7 +77,9 @@ Os XMLs são nomeados seguindo o padrão `<prefixo>_AAAA-MM_<chave>.xml` definid
 pela chave `file_prefix`.
 
 A interface gráfica também possui um botão **Sobre** que exibe a versão do
-aplicativo, o autor e o texto completo da licença MIT utilizada.
+aplicativo, o autor e o texto completo da licença MIT utilizada. O texto da
+licença é lido dinamicamente do arquivo `LICENSE` localizado no mesmo
+diretório do programa.
 
 ## Gerar executável com PyInstaller
 
