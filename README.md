@@ -78,8 +78,8 @@ pela chave `file_prefix`.
 
 A interface gráfica também possui um botão **Sobre** que exibe a versão do
 aplicativo, o autor e o texto completo da licença MIT utilizada. O texto da
-licença é lido dinamicamente do arquivo `LICENSE` localizado no mesmo
-diretório do programa.
+licença já está embutido no código, portanto não é necessário distribuir o
+arquivo `LICENSE` junto com o executável.
 
 ## Gerar executável com PyInstaller
 
@@ -90,9 +90,8 @@ pip install pyinstaller
 pyinstaller --onefile --noconsole --noupx download_nfse_gui.py
 ```
 O executável será gerado dentro da pasta `dist`.
-Copie o `config.json`, o arquivo de certificado (`.pfx` ou `.pem`) **e o
-`LICENSE`** para esse diretório para que o programa consiga localizá-los em
-tempo de execução.
+Copie o `config.json` e o arquivo de certificado (`.pfx` ou `.pem`) para esse
+diretório para que o programa consiga localizá-los em tempo de execução.
 
 Um script auxiliar `build_exe.sh` está disponível para automatizar essas etapas,
 já utilizando a opção `--noconsole` e adicionando `--noupx` por padrão.

@@ -9,8 +9,14 @@ import logging
 import sys
 from pathlib import Path
 from contextlib import contextmanager
-from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
-from cryptography.hazmat.primitives.serialization.pkcs12 import load_key_and_certificates
+from cryptography.hazmat.primitives.serialization import (
+    Encoding,
+    PrivateFormat,
+    NoEncryption,
+)
+from cryptography.hazmat.primitives.serialization.pkcs12 import (
+    load_key_and_certificates,
+)
 import tempfile
 import threading
 import tkinter as tk
@@ -23,13 +29,7 @@ try:
 except Exception:
     __version__ = "0.0.0"
 
-LICENSE_FILE = Path(sys.argv[0]).resolve().with_name("LICENSE")
-if not LICENSE_FILE.exists():
-    LICENSE_FILE = Path(__file__).resolve().with_name("LICENSE")
-try:
-    LICENSE_TEXT = LICENSE_FILE.read_text(encoding="utf-8").strip()
-except Exception:
-    LICENSE_TEXT = "MIT License"
+from license_text import LICENSE_TEXT
 
 CONFIG_FILE = "config.json"
 
