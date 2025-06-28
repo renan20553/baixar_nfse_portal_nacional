@@ -241,12 +241,12 @@ class App:
         win.title("Sobre")
 
         text = ScrolledText(win, width=80, height=25, wrap=tk.WORD)
-        text.insert(
-            tk.END,
+        about_text = (
             f"Download NFS-e Portal Nacional v{__version__}\n"
             "Autor: Renan R. Santos\n\n"
-            f"{LICENSE_TEXT}",
+            f"{LICENSE_TEXT}"
         )
+        text.insert(tk.END, about_text)
         text.config(state=tk.DISABLED)
         text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
