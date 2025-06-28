@@ -40,6 +40,7 @@ jobs:
         run: |
           pyinstaller --onefile --noconsole --noupx download_nfse_gui.py
           cp config.json dist/
+          cp LICENSE dist/
           mv dist/download_nfse_gui.exe dist/download_nfse_gui_${APP_VERSION}.exe
           ls -R dist
 
