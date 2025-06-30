@@ -9,7 +9,10 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
 
+from dataclasses import asdict
+
 from nfse.downloader import NFSeDownloader
+from nfse.config import Config
 
 try:
     from version import __version__  # type: ignore
@@ -21,22 +24,11 @@ from license_text import LICENSE_TEXT
 CONFIG_FILE = "config.json"
 
 # Valores padrao para criacao automatica do arquivo de configuracao
-DEFAULT_CONFIG = {
-    "cert_path": "caminho/para/certificado.pfx",
-    "cert_pass": "sua_senha",
-    "cnpj": "00000000000000",
-    "output_dir": "./xml",
-    "log_dir": "logs",
-    "file_prefix": "NFS-e",
-    "download_pdf": False,
-    "delay_seconds": 60,
-    "auto_start": False,
-    "timeout": 30,
-}
+DEFAULT_CONFIG = asdict(Config())
 
 
 class App:
-    def __init__(self, root, config):
+    def __init__(self, root, config: Config):
         self.root = root
         self.config = config
         self.root.title(f"Download NFS-e Portal Nacional v{__version__}")
@@ -77,7 +69,7 @@ class App:
         self.settings_win = None  # referencia para a janela de configuração
         self.about_win = None  # referencia para a janela Sobre
 
-        if self.config.get("auto_start", False):
+        if self.config.auto_start:
             self.root.after(500, self.start)  # pequeno delay para interface carregar antes de iniciar
 
     def write(self, msg, log=True):
@@ -133,7 +125,7 @@ class App:
 
         def add_entry(row, key, label, browse=None):
             tk.Label(win, text=label).grid(row=row, column=0, sticky="w", padx=5, pady=2)
-            var = tk.StringVar(value=str(self.config.get(key, "")))
+            var = tk.StringVar(value=str(getattr(self.config, key)))
             entry = tk.Entry(win, textvariable=var, width=50)
             entry.grid(row=row, column=1, padx=5, pady=2)
             vars_[key] = var
@@ -159,29 +151,29 @@ class App:
         add_entry(6, "delay_seconds", "Delay (s)")
         add_entry(7, "timeout", "Timeout (s)")
 
-        auto_start_var = tk.BooleanVar(value=bool(self.config.get("auto_start", False)))
+        auto_start_var = tk.BooleanVar(value=bool(self.config.auto_start))
         tk.Checkbutton(win, text="Auto iniciar", variable=auto_start_var).grid(row=8, column=1, sticky="w", padx=5, pady=2)
 
-        pdf_var = tk.BooleanVar(value=bool(self.config.get("download_pdf", False)))
+        pdf_var = tk.BooleanVar(value=bool(self.config.download_pdf))
         tk.Checkbutton(win, text="Baixar PDF", variable=pdf_var).grid(row=9, column=1, sticky="w", padx=5, pady=2)
 
         def save():
-            new_cfg = self.config.copy()
+            new_data = asdict(self.config)
             for k, v in vars_.items():
                 if k in ("delay_seconds", "timeout"):
                     try:
-                        new_cfg[k] = int(v.get())
+                        new_data[k] = int(v.get())
                     except ValueError:
                         messagebox.showerror("Erro", f"Valor inválido para {k}")
                         return
                 else:
-                    new_cfg[k] = v.get()
-            new_cfg["auto_start"] = auto_start_var.get()
-            new_cfg["download_pdf"] = pdf_var.get()
-            self.config = new_cfg
+                    new_data[k] = v.get()
+            new_data["auto_start"] = auto_start_var.get()
+            new_data["download_pdf"] = pdf_var.get()
+            self.config = Config(**new_data)
             # Update the downloader instance so new settings take effect
-            self.downloader.config = new_cfg
-            salvar_config(new_cfg)
+            self.downloader.config = self.config
+            self.config.save(CONFIG_FILE)
             messagebox.showinfo("Configurações", "Configurações salvas com sucesso!")
             on_close()
 
@@ -191,8 +183,8 @@ class App:
         win = tk.Toplevel(self.root)
         win.title("Editar NSU")
 
-        file_var = tk.StringVar(value=f"ultimo_nsu_{self.config.get('cnpj','')}.txt")
-        nsu_var = tk.StringVar(value=str(self.downloader.ler_ultimo_nsu(self.config.get("cnpj"))))
+        file_var = tk.StringVar(value=f"ultimo_nsu_{self.config.cnpj}.txt")
+        nsu_var = tk.StringVar(value=str(self.downloader.ler_ultimo_nsu(self.config.cnpj)))
 
         tk.Label(win, text="Arquivo NSU").grid(row=0, column=0, sticky="w", padx=5, pady=2)
         tk.Entry(win, textvariable=file_var, width=40).grid(row=0, column=1, padx=5, pady=2)
@@ -219,7 +211,7 @@ class App:
             except ValueError:
                 messagebox.showerror("Erro", "NSU inválido")
                 return
-            self.downloader.salvar_ultimo_nsu(nsu, self.config.get("cnpj"))
+            self.downloader.salvar_ultimo_nsu(nsu, self.config.cnpj)
             # also save to chosen path if different
             path = file_var.get()
             try:
@@ -277,37 +269,25 @@ class App:
             self.running = False
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
-            if self.config.get("auto_start") and not self.user_stop:
+            if self.config.auto_start and not self.user_stop:
                 self.root.after(1000, self.root.destroy)
 
 REQUIRED_FIELDS = ["cert_path", "cert_pass", "cnpj", "output_dir", "log_dir"]
 
-def ler_config():
-    created = False
-    if not os.path.exists(CONFIG_FILE):
-        cfg = DEFAULT_CONFIG.copy()
-        salvar_config(cfg)
-        created = True
+
+def ler_config() -> Config:
+    return Config.load(CONFIG_FILE)
+
+
+def salvar_config(cfg: Config | dict) -> None:
+    if isinstance(cfg, Config):
+        cfg.save(CONFIG_FILE)
     else:
-        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-            cfg = json.load(f)
-
-    for k, v in DEFAULT_CONFIG.items():
-        cfg.setdefault(k, v)
-
-    missing = [k for k in REQUIRED_FIELDS if not cfg.get(k)]
-    if missing and not created:
-        raise ValueError("Campos obrigatórios ausentes no config.json: " + ", ".join(missing))
-
-    return cfg
-
-def salvar_config(cfg):
-    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-        json.dump(cfg, f, indent=2, ensure_ascii=False)
+        Config(**cfg).save(CONFIG_FILE)
 
 if __name__ == "__main__":
     try:
-        cfg = ler_config()
+        cfg = Config.load(CONFIG_FILE)
     except Exception as e:
         tk.Tk().withdraw()
         messagebox.showerror("Erro de configuração", str(e))

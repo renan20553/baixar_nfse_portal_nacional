@@ -30,6 +30,7 @@ sys.modules["cryptography.hazmat.primitives.serialization"] = serialization
 sys.modules["cryptography.hazmat.primitives.serialization.pkcs12"] = pkcs12
 
 from nfse.downloader import NFSeDownloader
+from nfse.config import Config
 
 
 class DummyResp:
@@ -71,15 +72,15 @@ def test_run_updates_nsu(tmp_path, monkeypatch):
     import nfse.downloader as dl_mod
     monkeypatch.setattr(dl_mod, "requests", req_mod)
 
-    cfg = {
-        "cert_path": "dummy",
-        "cert_pass": "x",
-        "cnpj": "123",
-        "output_dir": str(tmp_path),
-        "log_dir": str(tmp_path),
-        "delay_seconds": 0,
-        "download_pdf": False,
-    }
+    cfg = Config(
+        cert_path="dummy",
+        cert_pass="x",
+        cnpj="123",
+        output_dir=str(tmp_path),
+        log_dir=str(tmp_path),
+        delay_seconds=0,
+        download_pdf=False,
+    )
 
     dl = NFSeDownloader(cfg)
 

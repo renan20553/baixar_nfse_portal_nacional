@@ -87,7 +87,7 @@ def test_show_about_open_close(monkeypatch):
     App = download_nfse_gui.App
     app = App.__new__(App)
     app.root = None
-    app.config = {}
+    app.config = download_nfse_gui.Config()
     app.about_win = None
 
     app.show_about()
