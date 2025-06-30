@@ -22,9 +22,9 @@ CONFIG_FILE = "config.json"
 
 # Valores padrao para criacao automatica do arquivo de configuracao
 DEFAULT_CONFIG = {
-    "cert_path": "",
-    "cert_pass": "",
-    "cnpj": "",
+    "cert_path": "caminho/para/certificado.pfx",
+    "cert_pass": "sua_senha",
+    "cnpj": "00000000000000",
     "output_dir": "./xml",
     "log_dir": "logs",
     "file_prefix": "NFS-e",
