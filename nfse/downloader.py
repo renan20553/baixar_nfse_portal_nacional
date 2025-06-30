@@ -219,11 +219,9 @@ class NFSeDownloader:
                                             log=True,
                                         )
                                 nsu_maior = max(nsu_maior, nsu_item)
-                                self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
-                            if stop_loop or not running():
-                                self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
-                                break
                             self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
+                            if stop_loop or not running():
+                                break
                             nsu = nsu_maior + 1
                         else:
                             self.logger.error("Resposta inesperada ou nenhum documento localizado.")
