@@ -221,7 +221,7 @@ class NFSeDownloader:
                                 nsu_maior = max(nsu_maior, nsu_item)
                                 self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             if stop_loop or not running():
-                                self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
+                                self.salvar_ultimo_nsu(max(1, nsu_maior), cnpj)
                                 break
                             self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             nsu = nsu_maior + 1
@@ -237,7 +237,7 @@ class NFSeDownloader:
                             time.sleep(1)
                     elif resp.status_code == 204:
                         write("Nenhuma nota encontrada. Fim da consulta.", log=True)
-                        self.salvar_ultimo_nsu(nsu, cnpj)
+                        self.salvar_ultimo_nsu(max(1, nsu - 1), cnpj)
                         break
                     else:
                         self.logger.error("Erro: %s %s", resp.status_code, resp.text)

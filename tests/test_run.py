@@ -98,4 +98,4 @@ def test_run_updates_nsu(tmp_path, monkeypatch):
 
     nsu_file = tmp_path / "ultimo_nsu_123.txt"
     assert nsu_file.exists()
-    assert nsu_file.read_text() == "2"
+    assert nsu_file.read_text() == "1"
