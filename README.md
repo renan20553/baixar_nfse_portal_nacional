@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 ## Arquivo `config.json`
 
-Crie um arquivo `config.json` na raiz do projeto com as seguintes chaves:
+Se não existir, o programa criará um `config.json` padrão automaticamente. Ele deve conter as seguintes chaves:
 
 - `cert_path`: caminho para o certificado `.pfx` ou `.pem`.
 - `cert_pass`: senha do certificado.

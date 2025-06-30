@@ -20,6 +20,20 @@ from license_text import LICENSE_TEXT
 
 CONFIG_FILE = "config.json"
 
+# Valores padrao para criacao automatica do arquivo de configuracao
+DEFAULT_CONFIG = {
+    "cert_path": "caminho/para/certificado.pfx",
+    "cert_pass": "sua_senha",
+    "cnpj": "00000000000000",
+    "output_dir": "./xml",
+    "log_dir": "logs",
+    "file_prefix": "NFS-e",
+    "download_pdf": False,
+    "delay_seconds": 60,
+    "auto_start": False,
+    "timeout": 30,
+}
+
 
 class App:
     def __init__(self, root, config):
@@ -259,20 +273,22 @@ class App:
 REQUIRED_FIELDS = ["cert_path", "cert_pass", "cnpj", "output_dir", "log_dir"]
 
 def ler_config():
+    created = False
     if not os.path.exists(CONFIG_FILE):
-        raise FileNotFoundError(f"Arquivo de configuração '{CONFIG_FILE}' não encontrado.")
-    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-        cfg = json.load(f)
+        cfg = DEFAULT_CONFIG.copy()
+        salvar_config(cfg)
+        created = True
+    else:
+        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+
+    for k, v in DEFAULT_CONFIG.items():
+        cfg.setdefault(k, v)
 
     missing = [k for k in REQUIRED_FIELDS if not cfg.get(k)]
-    if missing:
+    if missing and not created:
         raise ValueError("Campos obrigatórios ausentes no config.json: " + ", ".join(missing))
 
-    cfg.setdefault("delay_seconds", 60)
-    cfg.setdefault("timeout", 30)
-    cfg.setdefault("auto_start", False)
-    cfg.setdefault("file_prefix", "NFS-e")
-    cfg.setdefault("download_pdf", False)
     return cfg
 
 def salvar_config(cfg):
