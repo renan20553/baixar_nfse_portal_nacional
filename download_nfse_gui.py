@@ -26,11 +26,14 @@ class App:
         self.root = root
         self.config = config
         self.root.title(f"Download NFS-e Portal Nacional v{__version__}")
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+
         self.text = ScrolledText(root, width=100, height=30, font=("Consolas", 10))
-        self.text.pack(fill=tk.BOTH, expand=True)
+        self.text.grid(row=0, column=0, sticky="nsew")
 
         self.bottom_frame = tk.Frame(root)
-        self.bottom_frame.pack(fill=tk.X, side=tk.BOTTOM)
+        self.bottom_frame.grid(row=1, column=0, sticky="ew")
 
         self.button_frame = tk.Frame(self.bottom_frame)
         self.button_frame.pack(side=tk.TOP)
