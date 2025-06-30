@@ -28,26 +28,33 @@ class App:
         self.root.title(f"Download NFS-e Portal Nacional v{__version__}")
         self.text = ScrolledText(root, width=100, height=30, font=("Consolas", 10))
         self.text.pack(fill=tk.BOTH, expand=True)
-        self.status_label = tk.Label(root, text="Pronto", anchor='w')
-        self.status_label.pack(fill=tk.X)
+
+        self.bottom_frame = tk.Frame(root)
+        self.bottom_frame.pack(fill=tk.X, side=tk.BOTTOM)
+
+        self.button_frame = tk.Frame(self.bottom_frame)
+        self.button_frame.pack(side=tk.TOP)
+
+        self.status_label = tk.Label(self.bottom_frame, text="Pronto", anchor="w")
+        self.status_label.pack(fill=tk.X, side=tk.BOTTOM)
         self.logger = logging.getLogger(__name__)
         self.running = False
         self.thread = None
         self.user_stop = False
         self.downloader = NFSeDownloader(config)
 
-        self.start_button = tk.Button(root, text="Iniciar Download", command=self.start)
+        self.start_button = tk.Button(self.button_frame, text="Iniciar Download", command=self.start)
         self.start_button.pack(side=tk.LEFT, padx=5, pady=5)
-        self.stop_button = tk.Button(root, text="Parar", command=self.stop, state=tk.DISABLED)
+        self.stop_button = tk.Button(self.button_frame, text="Parar", command=self.stop, state=tk.DISABLED)
         self.stop_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.settings_button = tk.Button(root, text="Configurações", command=self.open_settings)
+        self.settings_button = tk.Button(self.button_frame, text="Configurações", command=self.open_settings)
         self.settings_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.about_button = tk.Button(root, text="Sobre", command=self.show_about)
+        self.about_button = tk.Button(self.button_frame, text="Sobre", command=self.show_about)
         self.about_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.nsu_button = tk.Button(root, text="Editar NSU", command=self.open_nsu_editor)
+        self.nsu_button = tk.Button(self.button_frame, text="Editar NSU", command=self.open_nsu_editor)
         self.nsu_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.settings_win = None  # referencia para a janela de configuração
