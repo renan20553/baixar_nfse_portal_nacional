@@ -183,15 +183,20 @@ class NFSeDownloader:
                                 filename = os.path.join(
                                     output_dir, f"{file_prefix}_{ano}-{mes}_{chave}.xml"
                                 )
+                                write(f"NSU {nsu_item}", log=True)
                                 if not os.path.exists(filename):
                                     with open(filename, "wb") as fxml:
                                         fxml.write(xml_bytes)
-                                    write(f"NSU {nsu_item}", log=True)
                                     write(
                                         f"XML Baixado e salvo: {filename}",
                                         log=True,
                                     )
                                     total_baixados += 1
+                                else:
+                                    write(
+                                        f"XML já existente para NSU {nsu_item}",
+                                        log=True,
+                                    )
                                 if download_pdf and running():
                                     pdf_file = os.path.join(
                                         output_dir,
@@ -208,6 +213,11 @@ class NFSeDownloader:
                                                 f"Falha ao baixar PDF: {chave}",
                                                 log=True,
                                             )
+                                    else:
+                                        write(
+                                            f"PDF já existente para NSU {nsu_item}",
+                                            log=True,
+                                        )
                                 nsu_maior = max(nsu_maior, nsu_item)
                                 self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             if stop_loop or not running():
