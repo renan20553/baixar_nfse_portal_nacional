@@ -221,7 +221,7 @@ class NFSeDownloader:
                                 nsu_maior = max(nsu_maior, nsu_item)
                                 self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             if stop_loop or not running():
-                                self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
+                                self.salvar_ultimo_nsu(max(1, nsu_maior), cnpj)
                                 break
                             self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             nsu = nsu_maior + 1
