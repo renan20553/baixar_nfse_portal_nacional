@@ -218,7 +218,7 @@ class NFSeDownloader:
                                             f"PDF já existente para NSU {nsu_item}",
                                             log=True,
                                         )
-                                nsu_maior = max(nsu_maior, nsu_item)
+                                    nsu_maior = max(nsu_maior, nsu_item)
                             self.salvar_ultimo_nsu(nsu_maior + 1, cnpj)
                             if stop_loop or not running():
                                 break
