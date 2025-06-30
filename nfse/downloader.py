@@ -55,12 +55,12 @@ class NFSeDownloader:
 
     @staticmethod
     def extrair_ano_mes(xml_bytes: bytes) -> tuple[str, str]:
-        """Return the year and month from the XML's emission date."""
+        """Return the year and month from ``dhEmi`` or ``dhEvento``."""
         now = datetime.datetime.now()
         try:
             root = ET.fromstring(xml_bytes)
             el = None
-            for tag in ("dhEmi", "DataEmissao"):
+            for tag in ("dhEmi", "dhEvento", "DataEmissao"):
                 el = root.find(f'.//{{*}}{tag}')
                 if el is not None and el.text:
                     break

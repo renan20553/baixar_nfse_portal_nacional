@@ -84,3 +84,10 @@ def test_extrair_ano_mes_dhemi() -> None:
     ano, mes = NFSeDownloader.extrair_ano_mes(xml.encode())
     assert ano == "2025"
     assert mes == "06"
+
+
+def test_extrair_ano_mes_dhevento() -> None:
+    xml = "<root><dhEvento>2026-12-31T23:59:59-03:00</dhEvento></root>"
+    ano, mes = NFSeDownloader.extrair_ano_mes(xml.encode())
+    assert ano == "2026"
+    assert mes == "12"
