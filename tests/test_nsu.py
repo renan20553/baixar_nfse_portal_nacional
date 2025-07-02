@@ -34,13 +34,14 @@ sys.modules[
 ] = pkcs12
 
 from nfse.downloader import NFSeDownloader
+from nfse.config import Config
 
 
 def test_salvar_e_ler_nsu(tmp_path: Path) -> None:
     cwd = os.getcwd()
     os.chdir(tmp_path)
     try:
-        dl = NFSeDownloader({"cnpj": "12345678901234"})
+        dl = NFSeDownloader(Config(cnpj="12345678901234"))
         dl.salvar_ultimo_nsu(42)
         file_path = tmp_path / "ultimo_nsu_12345678901234.txt"
         assert file_path.read_text() == "42"
@@ -53,7 +54,7 @@ def test_ler_nsu_padrao(tmp_path: Path) -> None:
     cwd = os.getcwd()
     os.chdir(tmp_path)
     try:
-        dl = NFSeDownloader({"cnpj": "99999999999999"})
+        dl = NFSeDownloader(Config(cnpj="99999999999999"))
         assert dl.ler_ultimo_nsu() == 1
     finally:
         os.chdir(cwd)
@@ -63,7 +64,7 @@ def test_salvar_nsu_persiste_novo_obj(tmp_path: Path) -> None:
     cwd = os.getcwd()
     os.chdir(tmp_path)
     try:
-        cfg = {"cnpj": "00000000000001"}
+        cfg = Config(cnpj="00000000000001")
         dl = NFSeDownloader(cfg)
         dl.salvar_ultimo_nsu(99)
         dl2 = NFSeDownloader(cfg)

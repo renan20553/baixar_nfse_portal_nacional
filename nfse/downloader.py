@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 import requests
 
 from .pdf_downloader import NFSePDFDownloader
+from .config import Config
 
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
@@ -27,7 +28,7 @@ from cryptography.hazmat.primitives.serialization.pkcs12 import (
 class NFSeDownloader:
     """Utility class to download NFS-e documents."""
 
-    def __init__(self, config: dict):
+    def __init__(self, config: Config):
         self.config = config
         self.logger = logging.getLogger(__name__)
         self.session: Optional[requests.Session] = None
@@ -35,7 +36,7 @@ class NFSeDownloader:
     def ler_ultimo_nsu(self, cnpj: Optional[str] = None) -> int:
         """Return the last stored NSU for ``cnpj`` (defaults to config)."""
         if cnpj is None:
-            cnpj = self.config.get("cnpj", "")
+            cnpj = self.config.cnpj
         fname = f"ultimo_nsu_{cnpj}.txt"
         if os.path.exists(fname):
             with open(fname, "r", encoding="utf-8") as f:
@@ -48,7 +49,7 @@ class NFSeDownloader:
     def salvar_ultimo_nsu(self, nsu: int, cnpj: Optional[str] = None) -> None:
         """Persist ``nsu`` for ``cnpj`` (defaults to config)."""
         if cnpj is None:
-            cnpj = self.config.get("cnpj", "")
+            cnpj = self.config.cnpj
         fname = f"ultimo_nsu_{cnpj}.txt"
         with open(fname, "w", encoding="utf-8") as f:
             f.write(str(nsu))
@@ -88,9 +89,9 @@ class NFSeDownloader:
     ) -> Iterable[str]:
         """Convert ``pfx_path`` to a temporary PEM file."""
         if pfx_path is None:
-            pfx_path = self.config.get("cert_path")
+            pfx_path = self.config.cert_path
         if pfx_password is None:
-            pfx_password = self.config.get("cert_pass")
+            pfx_password = self.config.cert_pass
         data = Path(pfx_path).read_bytes()
         priv_key, cert, add_certs = load_key_and_certificates(
             data, pfx_password.encode(), None
@@ -116,15 +117,15 @@ class NFSeDownloader:
     ) -> None:
         """Download NFS-e documents until ``running`` returns ``False``."""
         cfg = self.config
-        cert_path = cfg["cert_path"]
-        cert_pass = cfg["cert_pass"]
-        cnpj = cfg["cnpj"]
-        output_dir = cfg["output_dir"]
-        log_dir = cfg["log_dir"]
-        file_prefix = cfg.get("file_prefix", "NFS-e")
-        delay_seconds = int(cfg.get("delay_seconds", 60))
-        timeout = int(cfg.get("timeout", 30))
-        download_pdf = bool(cfg.get("download_pdf", False))
+        cert_path = cfg.cert_path
+        cert_pass = cfg.cert_pass
+        cnpj = cfg.cnpj
+        output_dir = cfg.output_dir
+        log_dir = cfg.log_dir
+        file_prefix = cfg.file_prefix
+        delay_seconds = int(cfg.delay_seconds)
+        timeout = int(cfg.timeout)
+        download_pdf = bool(cfg.download_pdf)
 
         os.makedirs(output_dir, exist_ok=True)
         os.makedirs(log_dir, exist_ok=True)
