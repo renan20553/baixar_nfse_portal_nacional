@@ -6,7 +6,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# Stub external dependencies used by download_nfse_gui
+# Stub external dependencies used by download_nfse
 sys.modules.setdefault("requests", types.ModuleType("requests"))
 
 crypto = types.ModuleType("cryptography")
@@ -28,7 +28,7 @@ sys.modules["cryptography.hazmat.primitives"] = primitives
 sys.modules["cryptography.hazmat.primitives.serialization"] = serialization
 sys.modules["cryptography.hazmat.primitives.serialization.pkcs12"] = pkcs12
 
-import download_nfse_gui
+import download_nfse
 
 
 class DummyWin:
@@ -77,17 +77,17 @@ def setup_dummy_tk(monkeypatch):
         DISABLED="disabled",
         BOTH="both",
     )
-    monkeypatch.setattr(download_nfse_gui, "tk", dummy_tk)
-    monkeypatch.setattr(download_nfse_gui, "ScrolledText", DummyScrolledText)
+    monkeypatch.setattr(download_nfse, "tk", dummy_tk)
+    monkeypatch.setattr(download_nfse, "ScrolledText", DummyScrolledText)
     return dummy_tk
 
 
 def test_show_about_open_close(monkeypatch):
     setup_dummy_tk(monkeypatch)
-    App = download_nfse_gui.App
+    App = download_nfse.App
     app = App.__new__(App)
     app.root = None
-    app.config = download_nfse_gui.Config()
+    app.config = download_nfse.Config()
     app.about_win = None
 
     app.show_about()
