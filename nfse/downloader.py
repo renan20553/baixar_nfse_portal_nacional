@@ -185,38 +185,32 @@ class NFSeDownloader:
                                     output_dir, f"{file_prefix}_{ano}-{mes}_{chave}.xml"
                                 )
                                 write(f"NSU {nsu_item}", log=True)
-                                if not os.path.exists(filename):
-                                    with open(filename, "wb") as fxml:
-                                        fxml.write(xml_bytes)
-                                    write(
-                                        f"XML Baixado e salvo: {filename}",
-                                        log=True,
-                                    )
-                                    total_baixados += 1
-                                else:
-                                    write(
-                                        f"XML já existente para NSU {nsu_item}",
-                                        log=True,
-                                    )
+                                existed = os.path.exists(filename)
+                                with open(filename, "wb") as fxml:
+                                    fxml.write(xml_bytes)
+                                action = "substituído" if existed else "salvo"
+                                write(
+                                    f"XML Baixado e {action}: {filename}",
+                                    log=True,
+                                )
+                                total_baixados += 1
                                 if download_pdf and running():
                                     pdf_file = os.path.join(
                                         output_dir,
                                         f"{file_prefix}_{ano}-{mes}_{chave}.pdf",
                                     )
-                                    if not os.path.exists(pdf_file):
-                                        if pdf_dl.baixar(chave, pdf_file):
-                                            write(
-                                                f"PDF baixado e salvo: {pdf_file}",
-                                                log=True,
-                                            )
-                                        else:
-                                            write(
-                                                f"Falha ao baixar PDF: {chave}",
-                                                log=True,
-                                            )
+                                    pdf_existed = os.path.exists(pdf_file)
+                                    if pdf_dl.baixar(chave, pdf_file):
+                                        action = (
+                                            "substituído" if pdf_existed else "salvo"
+                                        )
+                                        write(
+                                            f"PDF baixado e {action}: {pdf_file}",
+                                            log=True,
+                                        )
                                     else:
                                         write(
-                                            f"PDF já existente para NSU {nsu_item}",
+                                            f"Falha ao baixar PDF: {chave}",
                                             log=True,
                                         )
                                 nsu_maior = max(nsu_maior, nsu_item)
