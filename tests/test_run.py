@@ -46,9 +46,11 @@ class DummyResp:
 class DummySession:
     def __init__(self):
         self.calls = 0
+        self.urls = []
 
     def get(self, url, timeout=0):
         self.calls += 1
+        self.urls.append(url)
         if self.calls == 1:
             xml = gzip.compress(b"<xml/>")
             doc = base64.b64encode(xml).decode()
@@ -96,6 +98,10 @@ def test_run_updates_nsu(tmp_path, monkeypatch):
         dl.run(write=lambda *a, **k: None, running=lambda: session.calls < 1)
     finally:
         os.chdir(cwd)
+
+    assert session.urls
+    first_url = session.urls[0]
+    assert first_url.endswith("/00000000000000000000?cnpj=123")
 
     nsu_file = tmp_path / "ultimo_nsu_123.txt"
     assert nsu_file.exists()

@@ -80,6 +80,13 @@ O programa lê o `config.json`, faz login com o certificado e salva as notas no 
 Os XMLs são nomeados seguindo o padrão `<prefixo>_AAAA-MM_<chave>.xml` definido
 pela chave `file_prefix`.
 
+### Continuação de downloads
+
+O script registra o último NSU processado em `ultimo_nsu_<cnpj>.txt` no
+diretório atual. Ao reiniciar, ele consulta sempre o NSU salvo **menos um**,
+requisitando novamente a última nota baixada. Isso evita perdas caso a
+execução seja interrompida.
+
 A interface gráfica também possui um botão **Sobre** que exibe a versão do
 aplicativo, o autor e o texto completo da licença MIT utilizada. O texto da
 licença já está embutido no código, portanto não é necessário distribuir o

@@ -152,8 +152,12 @@ class NFSeDownloader:
             nsu = self.ler_ultimo_nsu(cnpj)
             try:
                 while running():
-                    url = f"{base_url}/{nsu:020d}?cnpj={cnpj}"
-                    write(f"Consultando NSU {nsu} para CNPJ {cnpj}...", log=True)
+                    query_nsu = max(0, nsu - 1)
+                    url = f"{base_url}/{query_nsu:020d}?cnpj={cnpj}"
+                    write(
+                        f"Consultando NSU {nsu} (consulta {query_nsu}) para CNPJ {cnpj}...",
+                        log=True,
+                    )
                     try:
                         resp = sess.get(url, timeout=timeout)
                     except requests.exceptions.RequestException as e:
