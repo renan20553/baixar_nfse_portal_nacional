@@ -4,9 +4,7 @@
 
 set -e
 
-pyinstaller --onefile --noconsole --noupx \
-  --version-file version_file.txt \
-  download_nfse_gui.py
+pyinstaller --onefile --noconsole --noupx download_nfse_gui.py
 
 # Copy license so the About dialog can read it when packaged
 cp LICENSE dist/
