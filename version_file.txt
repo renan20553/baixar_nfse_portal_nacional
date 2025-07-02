@@ -13,7 +13,7 @@ VSVersionInfo(
   kids=[
     StringFileInfo([
       StringTable(
-        '040904B0',
+        '041604B0',
         [
           StringStruct('CompanyName', 'Renan R. Santos'),
           StringStruct('FileDescription', 'Download NFS-e Portal Nacional'),
@@ -25,6 +25,6 @@ VSVersionInfo(
         ]
       )
     ]),
-    VarFileInfo([VarStruct('Translation', [0x0409, 0x04B0])])
+    VarFileInfo([VarStruct('Translation', [0x0416, 0x04B0])])
   ]
 )
