@@ -91,11 +91,16 @@ Para criar um executável standalone:
 
 ```bash
 pip install pyinstaller
-pyinstaller --onefile --noconsole --noupx download_nfse_gui.py
+pyinstaller --onefile --noconsole --noupx \
+  --version-file version_file.txt download_nfse_gui.py
 ```
 O executável será gerado dentro da pasta `dist`.
 Copie o `config.json` e o arquivo de certificado (`.pfx` ou `.pem`) para esse
 diretório para que o programa consiga localizá-los em tempo de execução.
+
+O arquivo `version_file.txt` define as informações exibidas na aba **Detalhes**
+das propriedades do executável no Windows. Edite esse arquivo para atualizar
+nome do produto, versão e demais campos conforme necessário.
 
 ### Incluir configurações e recursos adicionais
 

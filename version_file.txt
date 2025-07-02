@@ -1,0 +1,30 @@
+# UTF-8
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(0, 0, 0, 0),
+    prodvers=(0, 0, 0, 0),
+    mask=0x3F,
+    flags=0x0,
+    OS=0x4,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable(
+        '040904B0',
+        [
+          StringStruct('CompanyName', 'Renan R. Santos'),
+          StringStruct('FileDescription', 'Download NFS-e Portal Nacional'),
+          StringStruct('FileVersion', '0.0.0'),
+          StringStruct('ProductVersion', '0.0.0'),
+          StringStruct('InternalName', 'download_nfse_gui'),
+          StringStruct('OriginalFilename', 'download_nfse_gui.exe'),
+          StringStruct('ProductName', 'Download NFS-e Portal Nacional')
+        ]
+      )
+    ]),
+    VarFileInfo([VarStruct('Translation', [0x0409, 0x04B0])])
+  ]
+)
