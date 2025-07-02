@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build the standalone executable for download_nfse_gui.py using PyInstaller.
+# Build the standalone executable for download_nfse.py using PyInstaller.
 # Install PyInstaller with `pip install pyinstaller` if necessary.
 
 set -e
 
 pyinstaller --onefile --noconsole --noupx \
   --version-file version_file.txt \
-  download_nfse_gui.py
+  download_nfse.py
 
 # Copy license so the About dialog can read it when packaged
 cp LICENSE dist/

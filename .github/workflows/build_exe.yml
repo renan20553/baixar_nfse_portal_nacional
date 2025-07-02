@@ -57,8 +57,8 @@ jobs:
                     StringStruct('FileDescription', 'Download NFS-e Portal Nacional'),
                     StringStruct('FileVersion', '${APP_VERSION}'),
                     StringStruct('ProductVersion', '${APP_VERSION}'),
-                    StringStruct('InternalName', 'download_nfse_gui'),
-                    StringStruct('OriginalFilename', 'download_nfse_gui.exe'),
+                    StringStruct('InternalName', 'download_nfse'),
+                    StringStruct('OriginalFilename', 'download_nfse.exe'),
                     StringStruct('ProductName', 'Download NFS-e Portal Nacional')
                   ]
                 )
@@ -72,15 +72,15 @@ jobs:
         shell: bash
         run: |
           pyinstaller --onefile --noconsole --noupx \
-            --version-file version_file.txt download_nfse_gui.py
+            --version-file version_file.txt download_nfse.py
           cp config.json dist/
-          mv dist/download_nfse_gui.exe dist/download_nfse_gui_${APP_VERSION}.exe
+          mv dist/download_nfse.exe dist/download_nfse_${APP_VERSION}.exe
           ls -R dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: download_nfse_gui_${{ env.APP_VERSION }}
+          name: download_nfse_${{ env.APP_VERSION }}
           path: dist/
 
       - name: Create Release
@@ -89,5 +89,5 @@ jobs:
         with:
           tag_name: v${{ env.APP_VERSION }}
           name: v${{ env.APP_VERSION }}
-          files: dist/download_nfse_gui_${{ env.APP_VERSION }}.exe
+          files: dist/download_nfse_${{ env.APP_VERSION }}.exe
           token: ${{ secrets.GITHUB_TOKEN }}

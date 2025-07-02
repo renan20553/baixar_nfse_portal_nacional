@@ -67,13 +67,13 @@ Se não existir, o programa criará um `config.json` padrão automaticamente. El
 Linux/macOS:
 
 ```bash
-python3 download_nfse_gui.py
+python3 download_nfse.py
 ```
 
 Windows:
 
 ```cmd
-python download_nfse_gui.py
+python download_nfse.py
 ```
 
 O programa lê o `config.json`, faz login com o certificado e salva as notas no diretório configurado.
@@ -92,7 +92,7 @@ Para criar um executável standalone:
 ```bash
 pip install pyinstaller
 pyinstaller --onefile --noconsole --noupx \
-  --version-file version_file.txt download_nfse_gui.py
+  --version-file version_file.txt download_nfse.py
 ```
 O executável será gerado dentro da pasta `dist`.
 Copie o `config.json` e o arquivo de certificado (`.pfx` ou `.pem`) para esse
@@ -110,7 +110,7 @@ PyInstaller os incorpore ao executável. O formato do argumento é
 
 ```bash
 pyinstaller --onefile --noconsole --noupx \
-  --add-data "config.json;." download_nfse_gui.py
+  --add-data "config.json;." download_nfse.py
 ```
 
 Em modo `--onefile` todos os dados embutidos são extraídos para um diretório
@@ -133,7 +133,7 @@ Além disso, o repositório possui um workflow do **GitHub Actions** que realiza
 a compilação em um ambiente Windows. Ao enviar alterações para a branch
 `main`, todo o conteúdo da pasta `dist` é disponibilizado como artefato na aba
 *Actions*. O executável gerado recebe um sufixo no formato `0.<run>` e é
-publicado automaticamente em uma release, como `download_nfse_gui_0.42.exe`.
+publicado automaticamente em uma release, como `download_nfse_0.42.exe`.
 O número dessa versão também aparece no título da janela do aplicativo.
 
 ## Testes

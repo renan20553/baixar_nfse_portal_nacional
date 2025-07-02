@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# Stub external dependencies used by download_nfse_gui
+# Stub external dependencies used by download_nfse
 sys.modules.setdefault("requests", types.ModuleType("requests"))
 
 crypto = types.ModuleType("cryptography")

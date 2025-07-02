@@ -19,8 +19,8 @@ VSVersionInfo(
           StringStruct('FileDescription', 'Download NFS-e Portal Nacional'),
           StringStruct('FileVersion', '0.0.0'),
           StringStruct('ProductVersion', '0.0.0'),
-          StringStruct('InternalName', 'download_nfse_gui'),
-          StringStruct('OriginalFilename', 'download_nfse_gui.exe'),
+          StringStruct('InternalName', 'download_nfse'),
+          StringStruct('OriginalFilename', 'download_nfse.exe'),
           StringStruct('ProductName', 'Download NFS-e Portal Nacional')
         ]
       )
