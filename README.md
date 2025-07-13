@@ -1,157 +1,121 @@
-# Downloader de NFS-e do Portal Nacional
+# Baixar NFS-e Portal Nacional
 
-Este projeto fornece um script simples para baixar Notas Fiscais de Serviço eletrônicas (NFS-e) do Portal Nacional de forma automatizada.
+Ferramenta em **Python** para automatizar o download de Notas Fiscais de Serviço (NFS-e) diretamente do Portal Nacional, salvando XML e PDF com praticidade.
 
-## Requisitos
+[![build status](https://github.com/USERNAME/baixar_nfse_portal_nacional/actions/workflows/build_exe.yml/badge.svg)](https://github.com/USERNAME/baixar_nfse_portal_nacional/actions/workflows/build_exe.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Este projeto requer **Python 3.10** ou superior.
+## Baixe o executável
 
-## Configuração do ambiente (Linux/macOS)
+Sempre que mudanças são enviadas para o branch `main` o projeto gera
+automaticamente um arquivo `exe` através do GitHub Actions. Você pode
+obter a versão mais recente acessando a página de releases e baixando o
+executável disponível.
 
-Crie um ambiente virtual (opcional, mas recomendado) e instale as dependências:
+[Download do instalador](https://github.com/USERNAME/baixar_nfse_portal_nacional/releases/latest)
+
+## Visão geral
+
+O projeto simplifica a obtenção de notas fiscais eletrônicas emitidas pelo Portal Nacional da NFS-e. Ideal para empresas e contadores que precisam manter o arquivo de notas organizado sem acessar manualmente o site.
+
+### Principais recursos
+
+- Baixa automaticamente XML e PDFs das notas.
+- Armazena logs e permite retomar o processo pelo último NSU.
+- Utiliza certificado digital (PFX ou PEM) para autenticação.
+- Possui interface gráfica simples construída com `tkinter`.
+- Suporte a criação de executável standalone via PyInstaller.
+
+### Fluxo de funcionamento
+
+```mermaid
+flowchart LR
+    A[config.json] -->|Certificado| B[Portal Nacional]
+    B --> C[XML/PDF]
+    C --> D[Diretório de saída]
+```
+
+## Instalação
+
+1. Tenha o **Python 3.10** ou superior instalado.
+2. (Opcional) Crie um ambiente virtual:
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 ```
 
-O arquivo `requirements.txt` lista pacotes necessários como `requests` e `cryptography`.
-
-## Configuração do ambiente no Windows
-
-Abra o Prompt de Comando ou o PowerShell e execute:
-
-```cmd
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-## Arquivo `config.json`
-
-Se não existir, o programa criará um `config.json` padrão automaticamente. Ele deve conter as seguintes chaves:
-
-- `cert_path`: caminho para o certificado `.pfx` ou `.pem`.
-- `cert_pass`: senha do certificado.
-- `cnpj`: CNPJ utilizado para login no portal.
-- `output_dir`: diretório onde os XML baixados serão salvos.
-- `log_dir`: diretório onde os arquivos de log serão criados.
-- `file_prefix`: texto prefixo para os nomes dos arquivos XML.
-- `download_pdf`: `true` para baixar o PDF de cada NFS-e.
-- `delay_seconds`: intervalo em segundos entre as consultas ao portal.
-- `auto_start`: `true` para iniciar o download automaticamente ao abrir o programa.
-- `timeout`: tempo limite das requisições em segundos (padrão `30`).
-
-**Importante:** o certificado precisa pertencer ao mesmo CNPJ utilizado no portal. Não é possível utilizar o certificado da matriz para baixar notas de uma filial.
-
-### Exemplo
-
-```json
-{
-  "cert_path": "caminho/para/certificado.pfx",
-  "cert_pass": "minha_senha",
-  "cnpj": "12345678000199",
-  "output_dir": "./xml",
-  "log_dir": "./logs",
-  "file_prefix": "NFS-e",
-  "download_pdf": false,
-  "delay_seconds": 2,
-  "auto_start": false,
-  "timeout": 30
-}
-```
-
-## Execução
-
-Linux/macOS:
+3. Instale as dependências:
 
 ```bash
-python3 download_nfse.py
+pip install -r requirements.txt
 ```
 
-Windows:
+## Configuração
 
-```cmd
+Edite o arquivo `config.json` (gerado automaticamente caso não exista) com as seguintes chaves:
+
+- `cert_path`: caminho do certificado digital.
+- `cert_pass`: senha do certificado.
+- `cnpj`: CNPJ utilizado no portal.
+- `output_dir`: pasta onde os XMLs serão salvos.
+- `log_dir`: diretório de logs.
+- `file_prefix`: prefixo dos arquivos.
+- `download_pdf`: `true` para baixar também o PDF.
+- `delay_seconds`: intervalo entre consultas.
+- `auto_start`: inicia o download ao abrir.
+- `timeout`: tempo limite das requisições.
+
+## Uso
+
+Execute o script principal:
+
+```bash
 python download_nfse.py
 ```
 
-O programa lê o `config.json`, faz login com o certificado e salva as notas no diretório configurado.
-Os XMLs são nomeados seguindo o padrão `<prefixo>_AAAA-MM_<chave>.xml` definido
-pela chave `file_prefix`.
+O programa inicia a interface gráfica e começa a baixar as notas de acordo com as configurações. Os arquivos são gravados seguindo o padrão `<prefixo>_AAAA-MM_<chave>.xml`.
 
-### Continuação de downloads
+## Contribuição
 
-O script registra o último NSU processado em `ultimo_nsu_<cnpj>.txt` no
-diretório atual. Ao reiniciar, ele consulta sempre o NSU salvo **menos um**,
-requisitando novamente a última nota baixada. Isso evita perdas caso a
-execução seja interrompida.
-
-A interface gráfica também possui um botão **Sobre** que exibe a versão do
-aplicativo, o autor e o texto completo da licença MIT utilizada. O texto da
-licença já está embutido no código, portanto não é necessário distribuir o
-arquivo `LICENSE` junto com o executável.
-
-## Gerar executável com PyInstaller
-
-Para criar um executável standalone:
-
-```bash
-pip install pyinstaller
-pyinstaller --onefile --noconsole --noupx \
-  --version-file version_file.txt download_nfse.py
-```
-O executável será gerado dentro da pasta `dist`.
-Copie o `config.json` e o arquivo de certificado (`.pfx` ou `.pem`) para esse
-diretório para que o programa consiga localizá-los em tempo de execução.
-
-O arquivo `version_file.txt` define as informações exibidas na aba **Detalhes**
-das propriedades do executável no Windows. Edite esse arquivo para atualizar
-nome do produto, versão e demais campos conforme necessário.
-
-### Incluir configurações e recursos adicionais
-
-Se sua aplicação precisar de outros arquivos, use `--add-data` para que o
-PyInstaller os incorpore ao executável. O formato do argumento é
-`<arquivo>;<destino>` no Windows ou `<arquivo>:<destino>` no Linux/macOS. Exemplo:
-
-```bash
-pyinstaller --onefile --noconsole --noupx \
-  --add-data "config.json;." download_nfse.py
-```
-
-Em modo `--onefile` todos os dados embutidos são extraídos para um diretório
-temporário quando o executável é iniciado e removidos ao final da execução.
-
-### Verificação de integridade
-
-Para garantir que o binário não foi alterado, considere assinar digitalmente o
-executável (por exemplo, utilizando **Authenticode** no Windows) ou publicar o
-checksum SHA-256 para que os usuários possam conferir a integridade do arquivo.
-
-Um script auxiliar `build_exe.sh` está disponível para automatizar essas etapas,
-já utilizando a opção `--noconsole` e adicionando `--noupx` por padrão.
-
-Executáveis gerados pelo PyInstaller podem disparar alertas falsos em alguns
-antivírus. Caso isso ocorra, prefira incluir a opção `--noupx` ao gerar o
-executável para evitar a compactação com UPX.
-
-Além disso, o repositório possui um workflow do **GitHub Actions** que realiza
-a compilação em um ambiente Windows. Ao enviar alterações para a branch
-`main`, todo o conteúdo da pasta `dist` é disponibilizado como artefato na aba
-*Actions*. O executável gerado recebe um sufixo no formato `0.<run>` e é
-publicado automaticamente em uma release, como `download_nfse_0.42.exe`.
-O número dessa versão também aparece no título da janela do aplicativo.
-
-## Testes
-
-Para rodar a suíte de testes, instale o `pytest` em seu ambiente e execute:
-
-```bash
-pip install pytest
-pytest
-```
+Contribuições são bem-vindas! Abra issues ou pull requests com melhorias, correções ou novas funcionalidades. Para mudanças maiores, discuta previamente através de uma issue.
 
 ## Licença
 
-Este projeto está licenciado sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Distribuído sob a licença [MIT](LICENSE).
+
+## Contato
+
+Para dúvidas ou suporte abra uma issue no GitHub ou contate **Renan R. Santos** através do [LinkedIn](https://www.linkedin.com/).
+
+## Documentação online
+
+Você pode publicar a pasta `docs/` via **GitHub Pages** para hospedar uma documentação completa em <https://USERNAME.github.io/baixar_nfse_portal_nacional/>.
+
+## Dados estruturados
+
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Baixar NFS-e Portal Nacional",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Windows, Linux, macOS",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "BRL"
+  }
+}
+</script>
+```
+
+---
+
+### Tópicos sugeridos
+
+Adicione as seguintes *tags* ao repositório no GitHub para melhorar a descoberta:
+`nfse`, `nfs-e`, `portal-nacional`, `download`, `python`, `automacao`, `xml`, `pdf`.
+
