@@ -27,6 +27,23 @@ CONFIG_FILE = "config.json"
 DEFAULT_CONFIG = asdict(Config())
 
 
+def dialog_initial_options(path: str, *, file: bool = False) -> dict:
+    """Start a picker at the current field, falling back to an existing parent."""
+    current = os.path.abspath(os.path.expanduser(path.strip())) if path.strip() else os.getcwd()
+    options = {}
+    if file and not os.path.isdir(current):
+        options["initialfile"] = os.path.basename(current)
+        current = os.path.dirname(current)
+    while not os.path.isdir(current):
+        parent = os.path.dirname(current)
+        if parent == current:
+            current = os.getcwd()
+            break
+        current = parent
+    options["initialdir"] = current
+    return options
+
+
 class App:
     def __init__(self, root, config: Config):
         self.root = root
@@ -131,13 +148,15 @@ class App:
             vars_[key] = var
             if browse == "file":
                 def choose():
-                    path = filedialog.askopenfilename(parent=win)
+                    path = filedialog.askopenfilename(
+                        parent=win, **dialog_initial_options(var.get(), file=True))
                     if path:
                         var.set(path)
                 tk.Button(win, text="...", command=choose).grid(row=row, column=2, padx=2, pady=2)
             elif browse == "dir":
                 def choose():
-                    path = filedialog.askdirectory(parent=win)
+                    path = filedialog.askdirectory(
+                        parent=win, **dialog_initial_options(var.get()))
                     if path:
                         var.set(path)
                 tk.Button(win, text="...", command=choose).grid(row=row, column=2, padx=2, pady=2)
@@ -210,7 +229,9 @@ class App:
         tk.Entry(win, textvariable=file_var, width=40).grid(row=0, column=1, padx=5, pady=2)
 
         def choose_file():
-            path = filedialog.askopenfilename(parent=win, filetypes=[("TXT", "*.txt"), ("All", "*.*")])
+            path = filedialog.askopenfilename(
+                parent=win, filetypes=[("TXT", "*.txt"), ("All", "*.*")],
+                **dialog_initial_options(file_var.get(), file=True))
             if path:
                 file_var.set(path)
                 if os.path.exists(path):
