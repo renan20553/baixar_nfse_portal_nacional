@@ -308,6 +308,12 @@ def salvar_config(cfg: Config | dict) -> None:
         Config(**cfg).save(CONFIG_FILE)
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--self-test":
+        from nfse.selftest import run_self_test
+
+        report_path = sys.argv[2] if len(sys.argv) > 2 else "self-test.json"
+        sys.exit(run_self_test(report_path, __version__))
+
     try:
         cfg = Config.load(CONFIG_FILE)
     except Exception as e:

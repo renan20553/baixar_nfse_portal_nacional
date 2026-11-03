@@ -14,6 +14,10 @@ executável disponível.
 
 [Download do instalador](https://github.com/USERNAME/baixar_nfse_portal_nacional/releases/latest)
 
+O executável Windows é compilado com **Python 3.12 x64 no Windows Server 2022**. Antes do upload, o workflow executa o próprio `.exe` em uma pasta temporária, com o Python de desenvolvimento fora do `PATH`, e verifica a leitura de PFX e a abertura do Tkinter. O resultado acompanha o artefato em `self-test.json`. O arquivo só é disponibilizado se esse teste passar.
+
+Para compilar localmente no Windows, instale `requirements-build.txt` com Python 3.12 x64. A opção de diagnóstico `download_nfse.exe --self-test resultado.json` não lê seu `config.json`, não usa seu certificado e não consulta a API.
+
 ## Visão geral
 
 O projeto simplifica a obtenção de notas fiscais eletrônicas emitidas pelo Portal Nacional da NFS-e. Ideal para empresas e contadores que precisam manter o arquivo de notas organizado sem acessar manualmente o site.
