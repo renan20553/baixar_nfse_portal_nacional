@@ -27,6 +27,23 @@ CONFIG_FILE = "config.json"
 DEFAULT_CONFIG = asdict(Config())
 
 
+def dialog_initial_options(path: str, *, file: bool = False) -> dict:
+    """Start a picker at the current field, falling back to an existing parent."""
+    current = os.path.abspath(os.path.expanduser(path.strip())) if path.strip() else os.getcwd()
+    options = {}
+    if file and not os.path.isdir(current):
+        options["initialfile"] = os.path.basename(current)
+        current = os.path.dirname(current)
+    while not os.path.isdir(current):
+        parent = os.path.dirname(current)
+        if parent == current:
+            current = os.getcwd()
+            break
+        current = parent
+    options["initialdir"] = current
+    return options
+
+
 class App:
     def __init__(self, root, config: Config):
         self.root = root
@@ -131,31 +148,39 @@ class App:
             vars_[key] = var
             if browse == "file":
                 def choose():
-                    path = filedialog.askopenfilename(parent=win)
+                    path = filedialog.askopenfilename(
+                        parent=win, **dialog_initial_options(var.get(), file=True))
                     if path:
                         var.set(path)
                 tk.Button(win, text="...", command=choose).grid(row=row, column=2, padx=2, pady=2)
             elif browse == "dir":
                 def choose():
-                    path = filedialog.askdirectory(parent=win)
+                    path = filedialog.askdirectory(
+                        parent=win, **dialog_initial_options(var.get()))
                     if path:
                         var.set(path)
                 tk.Button(win, text="...", command=choose).grid(row=row, column=2, padx=2, pady=2)
 
         add_entry(0, "cert_path", "Certificado", browse="file")
         add_entry(1, "cert_pass", "Senha")
-        add_entry(2, "cnpj", "CNPJ")
+        add_entry(2, "cnpj", "CNPJ consultado (matriz/filial)")
         add_entry(3, "output_dir", "Diretório XML", browse="dir")
         add_entry(4, "log_dir", "Diretório Log", browse="dir")
         add_entry(5, "file_prefix", "Prefixo Arquivo")
         add_entry(6, "delay_seconds", "Delay (s)")
         add_entry(7, "timeout", "Timeout (s)")
 
-        auto_start_var = tk.BooleanVar(value=bool(self.config.auto_start))
-        tk.Checkbutton(win, text="Auto iniciar", variable=auto_start_var).grid(row=8, column=1, sticky="w", padx=5, pady=2)
+        ambientes = {"Produção": "producao", "Produção restrita (testes)": "producao_restrita"}
+        ambiente_label = next((label for label, value in ambientes.items()
+                               if value == self.config.ambiente), "Produção")
+        ambiente_var = tk.StringVar(value=ambiente_label)
+        tk.Label(win, text="Ambiente").grid(row=8, column=0, sticky="w", padx=5, pady=2)
+        tk.OptionMenu(win, ambiente_var, *ambientes).grid(row=8, column=1, sticky="w", padx=5, pady=2)
 
-        pdf_var = tk.BooleanVar(value=bool(self.config.download_pdf))
-        tk.Checkbutton(win, text="Baixar PDF", variable=pdf_var).grid(row=9, column=1, sticky="w", padx=5, pady=2)
+        auto_start_var = tk.BooleanVar(value=bool(self.config.auto_start))
+        tk.Checkbutton(win, text="Auto iniciar", variable=auto_start_var).grid(row=9, column=1, sticky="w", padx=5, pady=2)
+        tk.Label(win, text="Pode usar o certificado da matriz para filial da mesma raiz de CNPJ.").grid(
+            row=10, column=0, columnspan=3, padx=5, pady=2)
 
         def save():
             new_data = asdict(self.config)
@@ -169,28 +194,44 @@ class App:
                 else:
                     new_data[k] = v.get()
             new_data["auto_start"] = auto_start_var.get()
-            new_data["download_pdf"] = pdf_var.get()
-            self.config = Config(**new_data)
+            new_data["ambiente"] = ambientes[ambiente_var.get()]
+            new_config = Config(**new_data)
+            try:
+                new_config.validar()
+                new_config.cnpj = new_config.normalizar_cnpj(new_config.cnpj)
+            except ValueError as e:
+                messagebox.showerror("Erro de configuração", str(e))
+                return
+            self.config = new_config
             # Update the downloader instance so new settings take effect
             self.downloader.config = self.config
             self.config.save(CONFIG_FILE)
             messagebox.showinfo("Configurações", "Configurações salvas com sucesso!")
             on_close()
 
-        tk.Button(win, text="Salvar", command=save).grid(row=10, column=0, columnspan=3, pady=5)
+        tk.Button(win, text="Salvar", command=save).grid(row=11, column=0, columnspan=3, pady=5)
 
     def open_nsu_editor(self):
         win = tk.Toplevel(self.root)
         win.title("Editar NSU")
 
-        file_var = tk.StringVar(value=f"ultimo_nsu_{self.config.cnpj}.txt")
-        nsu_var = tk.StringVar(value=str(self.downloader.ler_ultimo_nsu(self.config.cnpj)))
+        try:
+            nsu_file = self.downloader.arquivo_nsu()
+            next_nsu = self.downloader.ler_ultimo_nsu()
+        except ValueError as e:
+            win.destroy()
+            messagebox.showerror("Erro de configuração", str(e))
+            return
+        file_var = tk.StringVar(value=nsu_file)
+        nsu_var = tk.StringVar(value=str(next_nsu))
 
         tk.Label(win, text="Arquivo NSU").grid(row=0, column=0, sticky="w", padx=5, pady=2)
         tk.Entry(win, textvariable=file_var, width=40).grid(row=0, column=1, padx=5, pady=2)
 
         def choose_file():
-            path = filedialog.askopenfilename(parent=win, filetypes=[("TXT", "*.txt"), ("All", "*.*")])
+            path = filedialog.askopenfilename(
+                parent=win, filetypes=[("TXT", "*.txt"), ("All", "*.*")],
+                **dialog_initial_options(file_var.get(), file=True))
             if path:
                 file_var.set(path)
                 if os.path.exists(path):
@@ -202,16 +243,16 @@ class App:
 
         tk.Button(win, text="...", command=choose_file).grid(row=0, column=2, padx=2, pady=2)
 
-        tk.Label(win, text="NSU").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+        tk.Label(win, text="Próximo NSU").grid(row=1, column=0, sticky="w", padx=5, pady=2)
         tk.Entry(win, textvariable=nsu_var, width=20).grid(row=1, column=1, padx=5, pady=2)
 
         def save():
             try:
                 nsu = int(nsu_var.get())
+                self.downloader.salvar_ultimo_nsu(nsu, self.config.cnpj)
             except ValueError:
                 messagebox.showerror("Erro", "NSU inválido")
                 return
-            self.downloader.salvar_ultimo_nsu(nsu, self.config.cnpj)
             # also save to chosen path if different
             path = file_var.get()
             try:
@@ -259,17 +300,19 @@ class App:
         tk.Button(win, text="Fechar", command=on_close).pack(pady=5)
 
     def download_nfse(self):
+        completed = False
         try:
             self.downloader.run(write=self.write, running=lambda: self.running)
+            completed = True
             self.status_label.config(text="Processo concluído")
         except Exception as e:
-            self.logger.error("Erro inesperado: %s", e)
-            self.write(f"Erro inesperado: {e}", log=True)
+            self.logger.error("Falha no download: %s", e)
+            self.write(f"Falha no download: {e}", log=True)
         finally:
             self.running = False
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
-            if self.config.auto_start and not self.user_stop:
+            if completed and self.config.auto_start and not self.user_stop:
                 self.root.after(1000, self.root.destroy)
 
 REQUIRED_FIELDS = ["cert_path", "cert_pass", "cnpj", "output_dir", "log_dir"]
@@ -286,6 +329,12 @@ def salvar_config(cfg: Config | dict) -> None:
         Config(**cfg).save(CONFIG_FILE)
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--self-test":
+        from nfse.selftest import run_self_test
+
+        report_path = sys.argv[2] if len(sys.argv) > 2 else "self-test.json"
+        sys.exit(run_self_test(report_path, __version__))
+
     try:
         cfg = Config.load(CONFIG_FILE)
     except Exception as e:

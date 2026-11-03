@@ -1,0 +1,7 @@
+-r requirements.txt
+
+# Versions used for the Windows bundle. Python is fixed at 3.12 in Actions.
+requests==2.34.2
+cryptography==50.0.2
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.9

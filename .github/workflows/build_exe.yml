@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v4
@@ -19,13 +19,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          # Avoid the Python 3.15 abi3t DLL layout used by the failing bundle.
+          python-version: '3.12'
+          architecture: 'x64'
 
       - name: Install dependencies
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt pyinstaller
+          python -m pip install --only-binary=:all: -r requirements-build.txt
+          python -m pip check
+
+      - name: Run regression tests
+        shell: bash
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Generate version
         shell: bash
@@ -71,11 +78,17 @@ jobs:
       - name: Build executable
         shell: bash
         run: |
-          pyinstaller --onefile --noconsole --noupx \
+          python -m PyInstaller --clean --onefile --noconsole --noupx \
             --version-file version_file.txt download_nfse.py
           cp config.json dist/
           mv dist/download_nfse.exe dist/download_nfse_${APP_VERSION}.exe
           ls -R dist
+
+      - name: Test packaged executable without installed Python
+        shell: bash
+        run: |
+          python scripts/check_windows_executable.py \
+            "dist/download_nfse_${APP_VERSION}.exe" --report dist/self-test.json
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
